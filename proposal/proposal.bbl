@@ -1,0 +1,42 @@
+\begin{thebibliography}{4}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Binkert et~al.(2011)Binkert, Beckmann, Black, Reinhardt, Saidi, Basu,
+  Hestness, Hower, Krishna, Sardashti, Sen, Sewell, Shoaib, Vaish, Hill, and
+  Wood]{gem5}
+Nathan Binkert, Bradford Beckmann, Gabriel Black, Steven~K. Reinhardt, Ali
+  Saidi, Arkaprava Basu, Joel Hestness, Derek~R. Hower, Tushar Krishna, Somayeh
+  Sardashti, Rathijit Sen, Korey Sewell, Muhammad Shoaib, Nilay Vaish, Mark~D.
+  Hill, and David~A. Wood.
+\newblock {The gem5 simulator}.
+\newblock \emph{SIGARCH Comput. Archit. News}, 39:\penalty0 1--7, August 2011.
+\newblock ISSN 0163-5964.
+
+\bibitem[Niu et~al.(2011)Niu, Recht, Re, and Wright]{niu11hogwild}
+Feng Niu, Benjamin Recht, Christopher Re, and Stephen~J. Wright.
+\newblock Hogwild!: A lock-free approach to parallelizing stochastic gradient
+  descent.
+\newblock \emph{CoRR}, 2011.
+
+\bibitem[Oboril et~al.(2011)Oboril, Tahoori, Heuveline, Lukarski, and
+  Weiss]{oberil11numerical}
+Fabian Oboril, Mehdi~B. Tahoori, Vincent Heuveline, Dimitar Lukarski, and
+  Jan-Philipp Weiss.
+\newblock Numerical defect correction as an algorithm-based fault tolerance
+  technique for iterative solvers.
+\newblock In \emph{Pacific Rim International Symposium on Dependable
+  Computing}, pages 144--153, Los Alamitos, CA, USA, 2011. IEEE Computer
+  Society.
+
+\bibitem[Sartori et~al.(2011)Sartori, Sloan, and Kumar]{sartori11stochastic}
+John Sartori, Joseph Sloan, and Rakesh Kumar.
+\newblock Stochastic computing: Embracing errors in architecture and design of
+  processors and applications.
+\newblock In \emph{International Conference on Compilers, Architecture, and
+  Synthesis of Embedded System}, 2011.
+
+\end{thebibliography}
