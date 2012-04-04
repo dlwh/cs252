@@ -1,0 +1,193 @@
+\documentclass[12pt,leqno,twoside]{article}
+\usepackage{graphicx}
+\usepackage{amsfonts}
+\usepackage{enumerate}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{comment}
+\usepackage{bbm}
+\usepackage{multirow}
+\usepackage{enumerate}
+\usepackage{natbib}
+\setlength{\parskip}{1.2ex}        % space between paragraphs
+\setlength{\parindent}{2em}        % amount of indention
+\setlength{\textwidth}{7truein}      % default = 6.5"
+\setlength{\oddsidemargin}{-12mm}   % default = 0"
+\setlength{\evensidemargin}{-12mm}   % default = 0"
+\setlength{\textheight}{225mm}     % default = 9"
+\setlength{\topmargin}{-12mm}      % default = 0"
+\usepackage[all]{xy}
+\usepackage{tipa}
+\input xy
+\xyoption{all}
+\usepackage{listings}
+\newcommand{\indicator}[1]{\mathbbm{1}{\left[ {#1} \right] }}
+\lstdefinelanguage{Scala}%
+{morekeywords={abstract,case,catch,char,class,%
+def,else,extends,final,%
+if,import,%
+match,module,new,null,object,override,package,private,protected,%
+public,return,super,this,throw,trait,try,val,var,with%
+},%
+sensitive,%
+morecomment=[l]//,%
+morecomment=[s]{/*}{*/},%
+morestring=[b]``,%
+morestring=[b]',%
+showstringspaces=false%
+}[keywords,comments,strings]%
+
+\lstset{language=Scala,%
+mathescape=true,%
+columns=[c]fixed,%
+basewidth={0.5em, 0.40em},%
+basicstyle=\tt,%
+keywordstyle=\bfseries,%
+}
+
+\title{Project Proposal, Redux}
+\author{David Hall \and Alex Kantchelian}
+\begin{document}
+\maketitle
+
+\section{Introduction}
+
+Probabilistic graphical models (PGMs) are one of the cornerstones
+of modern AI, with applications ranging from medical diagnosis, to
+social network analysis, to robotics. PGMs provide the flexibility
+to model almost any real world phenomena in a coherent, simple way.
+However, exact computation in all but the most trivial PGMs is
+impossible. In the discrete case, inference in PGMs is
+\#P-complete~\citep{Koller2009pgm}, and for continuous variables it is
+possible to come up with incomputable models, even for ``well
+behaved'' distributions.~\citep{AFR11}
+
+Therefore, approximate inference regimes are one of the main cottage
+industries within the AI community, with several variants proposed
+each year. Broadly, they fall into three categories. The first is
+based on random sampling, especially Markov Chain Monte Carlo. MCMC
+is a randomized algorithm that is perhaps the easiest to implement, though
+it almost always the slowest in practice. Second are relaxation techniques
+based on linear or convex programming, but these are complex to implement
+and require significantly different implementations for each new PGM
+considered. Finally, there are message passing algorithms
+like mean field inference, belief propagation, and expectation propagation.
+We focus on message passing algorithms.
+
+Unfortunately, all of these algorithms are tricky to parallelize, especially on
+arbitrarily structured graphs. Most of these algorithms can be
+parallelized to a certain extent given a graph coloring, but there
+is a limit to how much parallelism can be extracted from graph
+partitions in arbitrary graphs.
+
+Message-passing algorithms typically work by decomposing the graph
+structure into subgraphs, and then (potentially) further approximating
+those parts with simpler distributions. Then, one proceeds one
+component at a time, optimizing it locally using the other components
+as a guide. (That is, these algorithms are basically a kind of
+coordinate ascent.) Of course, these updates are inherently
+non-sequential. Therefore, one possibility is to simply do these
+updates in parallel, using ``old information'' when making decisions. cite xxx
+However, this update schedule can lead to
+non-convergence, because oscillations between different local minima
+are possible.
+
+\begin{comment}
+Consider a probability distribution over two binary variables $x_1$ and $x_2$
+that have a distribution as in Figure 1. Suppose When updating sequentially,
+the algorithm will converge quickly, with $x_1$ updating to the opposite of
+$x_2$'s value. However, if the updates are performed in parallel, the 
+system could potentially oscillate, never
+\end{comment}
+
+We propose a new message passing algorithm called Concurrent
+Expectation Propagation (CEP) that allows for non-serialized
+concurrent updates in exactly this fashion. Nevertheless,  Moreover,
+our algorithm should be able to work with arbitrary graph structures,
+including both discrete and non-discrete distributions.
+
+Our algorithm works by two closely related mechanisms. First, message
+passing algorithms optimize an approximation to the true PGM that
+is ``as close as possible'' to the original graph while remaining
+within a tractable set of decomposed distributions. One class of
+approximations---convex approximations---ensures that there is
+only one optimum. Thus, different pieces of the structure of the
+graph (which are operating largely independently on different
+processors) cannot update towards different local optima, which is
+one of the primary sources of oscillation.
+
+Second, we introduce hysteresis into the updates. That is, when
+updating a component, one retains some fraction of the old approximation
+instead of completely replacing it. This hystersis is surprisingly
+actually one of the easiest ways to achieve convexity, meaning that
+we actually only have to make one change to the algorithm.
+
+We will implement CEP on hopefully three architectures: a traditional multicore
+CPU, a high-end consumer graphics card, and---if possible---a
+specialized message passing architecture. We will compare our
+algorithm to a serialized version of the algorithm, as well as a
+non-parallelized traditional version of EP.
+
+Finally, because of the hysteresis in our updates and the convexity
+of our approximation, it should be possible to run our algorithm
+where some updates are lost or corrupted. Thus, this scheme might
+be able to function in scenarios with improper synchronization or
+other flaky hardware. We therefore also propose to study
+the effect of how different (incorrect) locking schemes
+might lead to faster implementation with a minimal loss in accuracy.
+
+\section{Previous work}
+
+\subsection{Distributed Message Passing}
+
+We are not the first to propose to parallelize a message passing
+algorithm. \citet{CsekeHeskes2010} proposed parallel EP, wherein
+they performed the unmodified Expectation Propagation updates in
+parallel. In their application, their scheme worked fine, but it
+is simple to come up with examples where naively doing parallel
+updates would immediately fail.
+
+More closely related is the distributed belief propagation of
+\citet{schwing2011distributed}.  They also relied on a convexification scheme, but
+their approach differs in two ways from ours. First, expectation
+propagation is a more powerful algorithm than belief propagation,
+being able to handle more complex decompositions as well as
+non-discrete distributions. Second, the decompositions they did use
+are geared towards a MapReduce architecture, with updates happening
+only occasionally. 
+
+\subsection{Approximate and Concurrent Optimization}
+
+There has been a recent uptick of interest in the area of optimization
+under error-prone and other ``incorrect'' conditions, both from the
+machine learning community and the systems community.
+
+On the systems side, \citet{sartori11stochastic} argued empirically
+for what they term ``stochastic processors,'' which are classical
+processors that have been designed with the assumption that a certain
+amount of imprecision is acceptable. In particular, they provide
+experimental evidence that a variety of algorithms can withstand
+random bit flips in the floating point units. They further demonstrated
+how classic algorithms, like sorting and bipartite matching--can
+be phrased in terms of optimization.  Similarly, \citet{oberil11numerical}
+investigated variations on the conjugate gradient algorithm that
+were robust to random bit flips. All of these optimization algorithms
+they considered achieve their performance using convexity and
+hysteresis, the same two high level mechanisms we propose to use.
+
+On the machine learning side, the most relevant work is
+Hogwild!~\citep{niu11hogwild}. Essentially, the authors proposed
+and analyzed a variant of parallelized SGD where no locking was
+done in the updates to the weight vector $x$. This lock-free approach
+does not suffer much degradation over locking SGD,  particularly
+for sparse problems where the majority of the components of the
+vector $x$ are not in use at any particular time. And, of course,
+the resulting algorithm is much faster.  Interestingly, they are
+still able to prove that their algorithm is guaranteed to converge
+at rates that are essentially no different from ``correct'' SGD
+algorithms.
+
+
+\bibliographystyle{plainnat}
+\bibliography{refs} \end{document}

@@ -53,7 +53,7 @@ keywordstyle=\bfseries,%
 \section{Introduction}
 
 We propose to study the effect of explicitly fault-prone systems
-on machine learning workloads, in particular focusing on the
+on machine learning workloads. We in particular plan to focus on the
 optimization of convex objective functions commonly used in machine
 learning using stochastic gradient descent (SGD). Specifically, we
 will introduce plausible changes into a standard architecture that
@@ -63,10 +63,13 @@ guarantees and convergence rates for the overall algorithm.
 
 We are particularly interested in whether or not commonplace
 protections against read-after-write, write-after-read, and
-write-after-write hazards can be (at least) partially relaxed.
-Protection against these kinds of hazards limit the amount of
-instruction-level parallelism available, but allowing these hazards
-may not be fatal to a fault-tolerant machine learning algorithm.
+write-after-write hazards can be at least partially relaxed.
+Protection against these kinds of hazards is crucial for applications
+that are not tolerant to hardware error. However, allowing these
+hazards to happen occasionally may not be fatal to a fault-tolerant
+machine learning algorithm. Moreover, by allowing for machines
+that make errors, we might be able to find architectures that are
+faster or more efficient at achieving the same level of precision.
 
 %SGD is fast becoming the algorithm of choice for scalable machine
 %learning particularly in distributed settings (e.g.
@@ -81,13 +84,14 @@ optimize \begin{equation}
     \min_{x \in \mathcal{X}} f(x) + \phi(x)
    \end{split}
  \end{equation}
-where $f(x)$ is usually called a ``loss'' function.  Typically, in
+where $f(x)$ is usually called a ``loss'' function.  Typically in
 the literature, we are only presented with successive noisy
-approximations to $f$ (which we label $\tilde f$), usually arising from the data itself.  Therefore,
-we introduce  $\phi(x)$ as a regularization function that intuitively
-``smooths'' $x$, making it more resistant to noise in the data.
+approximations to $f$ (which we label $\tilde f$), usually arising
+from the data itself.  Therefore, we introduce  $\phi(x)$ as a
+regularization function that intuitively ``smooths'' $x$, making
+it more resistant to noise in the data.
 
-To actually optimize this function, we take small steps along the (noisy)
+To actually optimize this function, we take small steps along the 
 approximation to the gradient:
 \begin{equation}
   \begin{split}
@@ -120,15 +124,16 @@ investigated variations on the conjugate gradient algorithm that
 were robust to random bit flips.
 
 On the machine learning side, the most relevant work is
-Hogwild!~\citep{niu11hogwild}. Essentially, they proposed and
-analyzed a variant of parallelized SGD where no locking was done
-in the updates to the weight vector $x$. For sparse problems where
-the majority of the components of the vector $x$ are not in use at
-any particular time, this lock-free approach does not suffer much
-degradation over locking SGD, and it is of course much faster.
-Interestingly, however, they are able to specifically prove that
-their algorithm is guaranteed to converge at rates that are essentially
-no different from ``correct'' SGD algorithms.
+Hogwild!~\citep{niu11hogwild}. Essentially, the authors proposed
+and analyzed a variant of parallelized SGD where no locking was
+done in the updates to the weight vector $x$. This lock-free approach
+does not suffer much degradation over locking SGD,  particularly
+for sparse problems where the majority of the components of the
+vector $x$ are not in use at any particular time. And, of course,
+the resulting algorithm is much faster.  Interestingly, they are
+still able to prove that their algorithm is guaranteed to converge
+at rates that are essentially no different from ``correct'' SGD
+algorithms.
 
 \section{Approach}
 
@@ -137,7 +142,9 @@ a high-level language---simulate the effect of certain kinds of
 hardware errors on the convergence rate and performance of different
 variants of SGD for a few different machine learning workloads. For
 instance, we might simulate a read-after-write hazard by randomly
-stalling the actual commit of a value to the weight vector.
+stalling the actual commit of a value to the weight vector and
+apply this model to a standard logistic regression or support vector
+machine objective.
 
 Second, depending on what kinds of hazards and what kinds of error
 levels seem to be empirically feasible, we will investigate

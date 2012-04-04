@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.11 (TeX Live 2010/MacPorts 2010_4) (format=pdflatex 2011.4.14)  1 MAR 2012 23:36
+This is pdfTeX, Version 3.1415926-1.40.11 (TeX Live 2010/MacPorts 2010_4) (format=pdflatex 2011.4.14)  2 MAR 2012 20:48
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -540,7 +540,7 @@ File: umsb.fd 2009/06/22 v3.00 AMS symbols B
 Package xypdf Info: Line width: 0.47998pt on input line 50.
 \c@lstlisting=\count133
 
-Overfull \hbox (29.05817pt too wide) in paragraph at lines 77--79
+Overfull \hbox (29.05817pt too wide) in paragraph at lines 80--82
 \OT1/cmr/m/n/12 Before go-ing fur-ther, we quickly re-view the ba-sic stochas-t
 ic gra-di-ent al-go-rithm. Given a (sub)differentiable
  []
@@ -548,15 +548,15 @@ ic gra-di-ent al-go-rithm. Given a (sub)differentiable
 [1
 
 {/opt/local/var/db/texmf/fonts/map/pdftex/updmap/pdftex.map}] (./proposal.bbl
-Underfull \vbox (badness 10000) has occurred while \output is active []
+Underfull \vbox (badness 3260) has occurred while \output is active []
 
  [2])
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 154.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 161.
 
 [3]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 154.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 161.
  (./proposal.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 154.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 161.
 Package rerunfilecheck Info: File `proposal.out' has not changed.
 (rerunfilecheck)             Checksum: E26F10A54561AA459E5BCFC664C7BB56;198.
  ) 
@@ -578,7 +578,7 @@ b></opt/local/share/texmf-texlive-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb
 pt/local/share/texmf-texlive-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></o
 pt/local/share/texmf-texlive-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></op
 t/local/share/texmf-texlive-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb>
-Output written on proposal.pdf (3 pages, 109970 bytes).
+Output written on proposal.pdf (3 pages, 110206 bytes).
 PDF statistics:
  98 PDF objects out of 1000 (max. 8388607)
  82 compressed objects within 1 object stream
