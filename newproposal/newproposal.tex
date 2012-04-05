@@ -88,8 +88,7 @@ component at a time, optimizing it locally using the other components
 as a guide. (That is, these algorithms are basically a kind of
 coordinate ascent.) Of course, these updates are inherently
 non-sequential. Therefore, one possibility is to simply do these
-updates in parallel, using ``old information'' when making decisions. cite xxx
-However, this update schedule can lead to
+updates in parallel, using ``old information'' when making decisions~\citep{CsekeHeskes2010}. However, this update schedule can lead to
 non-convergence, because oscillations between different local minima
 are possible.
 
@@ -103,9 +102,9 @@ system could potentially oscillate, never
 
 We propose a new message passing algorithm called Concurrent
 Expectation Propagation (CEP) that allows for non-serialized
-concurrent updates in exactly this fashion. Nevertheless,  Moreover,
-our algorithm should be able to work with arbitrary graph structures,
-including both discrete and non-discrete distributions.
+concurrent updates in exactly this fashion. Our algorithm should 
+be able to work with arbitrary graph structures as well as both 
+discrete and non-discrete distributions.
 
 Our algorithm works by two closely related mechanisms. First, message
 passing algorithms optimize an approximation to the true PGM that
@@ -119,11 +118,11 @@ one of the primary sources of oscillation.
 
 Second, we introduce hysteresis into the updates. That is, when
 updating a component, one retains some fraction of the old approximation
-instead of completely replacing it. This hystersis is surprisingly
-actually one of the easiest ways to achieve convexity, meaning that
-we actually only have to make one change to the algorithm.
+instead of completely replacing it. This lagging is actually one of 
+the easiest ways to achieve convexity, meaning that
+we surprisingly only have to make one change to the algorithm.
 
-We will implement CEP on hopefully three architectures: a traditional multicore
+We will implement CEP on hopefully three architectures: a traditional multi-core
 CPU, a high-end consumer graphics card, and---if possible---a
 specialized message passing architecture. We will compare our
 algorithm to a serialized version of the algorithm, as well as a
@@ -149,7 +148,7 @@ is simple to come up with examples where naively doing parallel
 updates would immediately fail.
 
 More closely related is the distributed belief propagation of
-\citet{schwing2011distributed}.  They also relied on a convexification scheme, but
+\citet{schwing2011distributed}. They also relied on a convexification scheme, but
 their approach differs in two ways from ours. First, expectation
 propagation is a more powerful algorithm than belief propagation,
 being able to handle more complex decompositions as well as
@@ -163,18 +162,17 @@ There has been a recent uptick of interest in the area of optimization
 under error-prone and other ``incorrect'' conditions, both from the
 machine learning community and the systems community.
 
-On the systems side, \citet{sartori11stochastic} argued empirically
+On the systems side, 
+\citet{sartori11stochastic} argued empirically
 for what they term ``stochastic processors,'' which are classical
 processors that have been designed with the assumption that a certain
-amount of imprecision is acceptable. In particular, they provide
-experimental evidence that a variety of algorithms can withstand
-random bit flips in the floating point units. They further demonstrated
-how classic algorithms, like sorting and bipartite matching--can
-be phrased in terms of optimization.  Similarly, \citet{oberil11numerical}
-investigated variations on the conjugate gradient algorithm that
+amount of imprecision is acceptable in the functional units. In particular, they explain how classic algorithms, like sorting and bipartite matching, can
+be ``robustified'' when phrased in terms of optimization. They further 
+provide experimental evidence that the resulting algorithms tolerate 
+random bit flips in the floating point units. Similarly, \citet{oberil11numerical} investigated variations on the conjugate gradient algorithm that
 were robust to random bit flips. All of these optimization algorithms
 they considered achieve their performance using convexity and
-hysteresis, the same two high level mechanisms we propose to use.
+hysteresis, the same two high level mechanisms we propose to use. Taking a more detailed view on voltage scaling, \citep{Charkrapani2008} advocates for a non-uniform voltage scaling over the individual gates so that the most significant bits of the outputs incur the least error rates. \citep{palem2009} follow on this work and suggests using probabilistically correct circuits: designing inexact but highly energy-efficient logical circuits optimized for minimizing the expected error rate of the output given a known probability distribution on the inputs. While the authors show custom examples of such circuits, \citet{Lingamneni2011} introduce a general (approximation) algorithm for the so called ``parsimonious'' circuits.
 
 On the machine learning side, the most relevant work is
 Hogwild!~\citep{niu11hogwild}. Essentially, the authors proposed
