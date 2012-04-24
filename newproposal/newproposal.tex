@@ -61,7 +61,7 @@ However, exact computation in all but the most trivial PGMs is
 impossible. In the discrete case, inference in PGMs is
 \#P-complete~\citep{Koller2009pgm}, and for continuous variables it is
 possible to come up with incomputable models, even for ``well
-behaved'' distributions.~\citep{AFR11}
+behaved'' distributions~\citep{AFR11}.
 
 Therefore, approximate inference regimes are one of the main cottage
 industries within the AI community, with several variants proposed
@@ -85,12 +85,14 @@ Message-passing algorithms typically work by decomposing the graph
 structure into subgraphs, and then (potentially) further approximating
 those parts with simpler distributions. Then, one proceeds one
 component at a time, optimizing it locally using the other components
-as a guide. (That is, these algorithms are basically a kind of
-coordinate ascent.) Of course, these updates are inherently
-non-sequential. Therefore, one possibility is to simply do these
-updates in parallel, using ``old information'' when making decisions~\citep{CsekeHeskes2010}. However, this update schedule can lead to
-non-convergence, because oscillations between different local minima
-are possible.
+as a guide. That is, these algorithms are basically a kind of
+coordinate ascent. This implies that these updates are inherently
+sequential: coordinate ascent only makes sense if one coordinate is frozen at a time. 
+
+However, it is possible to just perform these updates in parallel,
+using ``old information'' when making decisions~\citep{CsekeHeskes2010}.
+However, this update schedule can lead to non-convergence, because
+oscillations between different local minima are possible.
 
 \begin{comment}
 Consider a probability distribution over two binary variables $x_1$ and $x_2$
@@ -102,9 +104,10 @@ system could potentially oscillate, never
 
 We propose a new message passing algorithm called Concurrent
 Expectation Propagation (CEP) that allows for non-serialized
-concurrent updates in exactly this fashion. Our algorithm should 
-be able to work with arbitrary graph structures as well as both 
-discrete and non-discrete distributions.
+concurrent updates without introducing the same pathologies possible
+in the na\"ive algorithm. Our algorithm should be able to work with
+arbitrary graph structures as well as both discrete and non-discrete
+distributions.
 
 Our algorithm works by two closely related mechanisms. First, message
 passing algorithms optimize an approximation to the true PGM that
@@ -134,7 +137,7 @@ where some updates are lost or corrupted. Thus, this scheme might
 be able to function in scenarios with improper synchronization or
 other flaky hardware. We therefore also propose to study
 the effect of how different (incorrect) locking schemes
-might lead to faster implementation with a minimal loss in accuracy.
+might lead to a faster implementation with a minimal loss in accuracy.
 
 \section{Previous work}
 
@@ -172,7 +175,19 @@ provide experimental evidence that the resulting algorithms tolerate
 random bit flips in the floating point units. Similarly, \citet{oberil11numerical} investigated variations on the conjugate gradient algorithm that
 were robust to random bit flips. All of these optimization algorithms
 they considered achieve their performance using convexity and
-hysteresis, the same two high level mechanisms we propose to use. Taking a more detailed view on voltage scaling, \citep{Charkrapani2008} advocates for a non-uniform voltage scaling over the individual gates so that the most significant bits of the outputs incur the least error rates. \citep{palem2009} follow on this work and suggests using probabilistically correct circuits: designing inexact but highly energy-efficient logical circuits optimized for minimizing the expected error rate of the output given a known probability distribution on the inputs. While the authors show custom examples of such circuits, \citet{Lingamneni2011} introduce a general (approximation) algorithm for the so called ``parsimonious'' circuits.
+hysteresis, the same two high level mechanisms we propose to use. 
+
+Taking a more detailed view on voltage scaling, \citep{Charkrapani2008}
+advocates for a non-uniform voltage scaling over the individual
+gates so that the most significant bits of the outputs incur the
+least error rates. \citep{palem2009} follow on this work and suggests
+using probabilistically correct circuits: designing inexact but
+highly energy-efficient logical circuits optimized for minimizing
+the expected error rate of the output given a known probability
+distribution on the inputs. While the authors show custom examples
+of such circuits, \citet{Lingamneni2011} introduce a general
+(approximation) algorithm for these so called ``parsimonious''
+circuits.
 
 On the machine learning side, the most relevant work is
 Hogwild!~\citep{niu11hogwild}. Essentially, the authors proposed
@@ -186,6 +201,11 @@ still able to prove that their algorithm is guaranteed to converge
 at rates that are essentially no different from ``correct'' SGD
 algorithms.
 
+Finally, \citet{vkm} recently proposed to directly encode Markov Chain
+Monte Carlo methods in hardware via FPGAs. While potentially powerful,
+this methodology does not address the fundamental requirement that
+MCMC be sequential. (Indeed, the ``Chain'' in ``Markov Chain Monte
+Carlo'' all but guarantees it!)
 
 \bibliographystyle{plainnat}
 \bibliography{refs} \end{document}
