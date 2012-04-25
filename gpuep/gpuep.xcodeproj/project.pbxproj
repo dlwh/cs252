@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		8DD76FAC0486AB0100D96B5E /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 08FB7796FE84155DC02AAC07 /* main.c */; settings = {ATTRIBUTES = (); }; };
+		B9EA164215475FF700AECFA9 /* ising.c in Sources */ = {isa = PBXBuildFile; fileRef = B9EA164115475FF700AECFA9 /* ising.c */; };
 		F69FD802153E35AD0050C973 /* hello.c in Sources */ = {isa = PBXBuildFile; fileRef = F69FD801153E35AD0050C973 /* hello.c */; };
 		F6F3B91A153E2DC600021725 /* kernel.cl in CopyFiles */ = {isa = PBXBuildFile; fileRef = F6F3B8F0153E2B4100021725 /* kernel.cl */; };
 		F6F3B932153E321200021725 /* OpenCL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6F3B931153E321200021725 /* OpenCL.framework */; };
@@ -28,7 +29,9 @@
 
 /* Begin PBXFileReference section */
 		08FB7796FE84155DC02AAC07 /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
-		8DD76FB20486AB0100D96B5E /* gpuep */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = gpuep; sourceTree = BUILT_PRODUCTS_DIR; };
+		8DD76FB20486AB0100D96B5E /* gpuep */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "compiled.mach-o.executable"; path = gpuep; sourceTree = BUILT_PRODUCTS_DIR; };
+		B9EA164015475F2500AECFA9 /* ising.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ising.h; sourceTree = "<group>"; };
+		B9EA164115475FF700AECFA9 /* ising.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ising.c; sourceTree = "<group>"; };
 		C6A0FF2C0290799A04C91782 /* gpuep.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = gpuep.1; sourceTree = "<group>"; };
 		F69FD801153E35AD0050C973 /* hello.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = hello.c; sourceTree = "<group>"; };
 		F6F3B8F0153E2B4100021725 /* kernel.cl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.opencl; path = kernel.cl; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.opencl; };
@@ -66,6 +69,8 @@
 				F6F3B8F0153E2B4100021725 /* kernel.cl */,
 				08FB7796FE84155DC02AAC07 /* main.c */,
 				F6F3B922153E2EF800021725 /* hello.h */,
+				B9EA164015475F2500AECFA9 /* ising.h */,
+				B9EA164115475FF700AECFA9 /* ising.c */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -138,6 +143,7 @@
 			files = (
 				8DD76FAC0486AB0100D96B5E /* main.c in Sources */,
 				F69FD802153E35AD0050C973 /* hello.c in Sources */,
+				B9EA164215475FF700AECFA9 /* ising.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -190,6 +196,7 @@
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_OPTIMIZATION_LEVEL = 3;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				PREBINDING = NO;

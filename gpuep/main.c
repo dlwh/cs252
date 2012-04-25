@@ -8,8 +8,43 @@
 #include <sys/stat.h>
 #include <OpenCL/opencl.h>
 
-#include "hello.h"
+#include "ising.h"
+
 
 int main (int argc, const char * argv[]) {
-    execute();	
+    ising_t input;
+    construct_ising(&input, 10, 10);
+    ising_t output;
+    
+    unsigned seed = 3;
+    
+    random_fill_ising(&input, -1, 1, &seed);
+    
+    int gpu = 1;
+    
+    cl_device_id device_id;             // compute device id 
+
+    int err = clGetDeviceIDs(NULL, gpu ? CL_DEVICE_TYPE_GPU : CL_DEVICE_TYPE_CPU, 1, &device_id, NULL);
+    if (err != CL_SUCCESS)
+    {
+        printf("Error: Failed to create a device group!\n");
+        return EXIT_FAILURE;
+    }
+    
+    cl_context context = clCreateContext(0, 1, &device_id, NULL, NULL, &err);
+    if (!context)
+    {
+        printf("Error: Failed to create a compute context!\n");
+        return EXIT_FAILURE;
+    }
+	
+    
+    ising_print(input);
+    do_inference(&output, input, context, device_id, 400);
+    ising_print(output);
+    destroy_ising(&output);
+    sequential_inference(&output, input, 400);
+    ising_print(output);
+    destroy_ising(&input);
+    destroy_ising(&output);
 }
