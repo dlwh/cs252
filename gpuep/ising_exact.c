@@ -67,8 +67,8 @@ int exact_marginals_parallel(ising_t* result, ising_t model, cl_context context,
 	construct_ising(result, model.rows, model.cols);
 	assert(model.rows * model.cols < 32);
 	int N=pow(2, model.rows * model.cols);
-	double* marginals0 = (double*) calloc(model.rows * model.cols, sizeof(double));
-	double* marginals1 = (double*) calloc(model.rows * model.cols, sizeof(double));
+	float* marginals0 = (float*) calloc(model.rows * model.cols, sizeof(float));
+	float* marginals1 = (float*) calloc(model.rows * model.cols, sizeof(float));
 	char* KernelSource=read_kernel("kernel_exact.cl");
 	
 	int err;
@@ -114,8 +114,8 @@ int exact_marginals_parallel(ising_t* result, ising_t model, cl_context context,
     
     cl_mem ising_pair = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(float) * count * 2, NULL, NULL);
     cl_mem ising_single = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(float) * count, NULL, NULL);
-    cl_mem clmarginals0 = clCreateBuffer(context, CL_MEM_READ_WRITE, sizeof(double) * count, NULL, NULL);
-    cl_mem clmarginals1 = clCreateBuffer(context, CL_MEM_READ_WRITE, sizeof(double) * count, NULL, NULL);
+    cl_mem clmarginals0 = clCreateBuffer(context, CL_MEM_READ_WRITE, sizeof(float) * count, NULL, NULL);
+    cl_mem clmarginals1 = clCreateBuffer(context, CL_MEM_READ_WRITE, sizeof(float) * count, NULL, NULL);
 	
 	err = clEnqueueWriteBuffer(commands, ising_pair, CL_TRUE, 0, sizeof(float) * count * 2, model.pair, 0, NULL, NULL);
     err |= clEnqueueWriteBuffer(commands, ising_single, CL_TRUE, 0, sizeof(float) * count, model.singleton, 0, NULL, NULL);
@@ -161,8 +161,8 @@ int exact_marginals_parallel(ising_t* result, ising_t model, cl_context context,
 
 	// Read back the results from the device to verify the output
 	//
-	err = clEnqueueReadBuffer(commands, clmarginals0, CL_TRUE, 0, sizeof(double) * count, marginals0, 0, NULL, NULL );
-	err |= clEnqueueReadBuffer(commands, clmarginals1, CL_TRUE, 0, sizeof(double) * count, marginals1, 0, NULL, NULL ); 
+	err = clEnqueueReadBuffer(commands, clmarginals0, CL_TRUE, 0, sizeof(float) * count, marginals0, 0, NULL, NULL );
+	err |= clEnqueueReadBuffer(commands, clmarginals1, CL_TRUE, 0, sizeof(float) * count, marginals1, 0, NULL, NULL ); 
 	if (err != CL_SUCCESS)
 	{
 		printf("Error: Failed to read output array! %d\n", err);
