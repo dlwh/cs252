@@ -9,6 +9,8 @@
 #ifndef gpuep_ising_h
 #define gpuep_ising_h
 
+#include <OpenCL/opencl.h>
+
 typedef struct {
     int rows, cols;
     // row * numCols + col

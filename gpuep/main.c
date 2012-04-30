@@ -6,14 +6,15 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <OpenCL/opencl.h>
 
 #include "ising.h"
+#include "ising_exact.h"
 
+void test(int a, int b);
 
 int main (int argc, const char * argv[]) {
-    ising_t input;
-    construct_ising(&input, 10, 10);
+	ising_t input;
+    construct_ising(&input, 3, 3);
     ising_t output;
     
     unsigned seed = 3;
@@ -45,6 +46,13 @@ int main (int argc, const char * argv[]) {
     destroy_ising(&output);
     sequential_inference(&output, input, 400);
     ising_print(output);
+	
+	ising_t exact;
+	exact_marginals(&exact, input);
+	
+	ising_print(exact);
+	
     destroy_ising(&input);
     destroy_ising(&output);
+	destroy_ising(&exact);
 }
