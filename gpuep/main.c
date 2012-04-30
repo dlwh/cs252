@@ -14,7 +14,7 @@ void test(int a, int b);
 
 int main (int argc, const char * argv[]) {
 	ising_t input;
-    construct_ising(&input, 3, 3);
+    construct_ising(&input, 5, 5);
     ising_t output;
     
     unsigned seed = 3;
@@ -48,6 +48,7 @@ int main (int argc, const char * argv[]) {
     ising_print(output);
 	
 	ising_t exact;
+//	exact_marginals_parallel(&exact, input, context, device_id);
 	exact_marginals(&exact, input);
 	
 	ising_print(exact);

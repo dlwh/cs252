@@ -13,5 +13,6 @@
 #define gpuep_ising_exact_h
 
 extern void exact_marginals(ising_t* result, ising_t model);
+extern int exact_marginals_parallel(ising_t* result, ising_t model, cl_context context, cl_device_id device_id);
 
 #endif
