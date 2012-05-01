@@ -1,5 +1,3 @@
-#pragma OPENCL EXTENSION cl_khr_fp64 : enable
-
 __kernel void one_configuration(__global float* ising_pair,
 								__global float* ising_single,
 								__global float* marginals0,
@@ -21,14 +19,23 @@ __kernel void one_configuration(__global float* ising_pair,
 			}
 		}
 	}
-	float pot = exp(sum);
 	
 	for(int c = 0; c < cols; c++){
 		for(int r = 0; r < rows; r++){
 			if((i >> r * cols + c) & 1){
-				marginals0[r * cols + c] += pot;
+				float m = marginals0[r * cols + c];
+				if(m>sum){
+					marginals0[r * cols + c] = m + log1p(exp(sum-m));
+				}else{
+					marginals0[r * cols + c] = sum + log1p(exp(m-sum));
+				}
 			}else{
-				marginals1[r * cols + c] += pot;
+				float m = marginals1[r * cols + c];
+				if(m>sum){
+					marginals1[r * cols + c] = m + log1p(exp(sum-m));
+				}else{
+					marginals1[r * cols + c] = sum + log1p(exp(m-sum));
+				}
 			}
 		}
 	}

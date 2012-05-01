@@ -14,7 +14,7 @@ void test(int a, int b);
 
 int main (int argc, const char * argv[]) {
 	ising_t input;
-    construct_ising(&input, 5, 5);
+    construct_ising(&input, 5, 6);
     ising_t output;
     
     unsigned seed = 3;
@@ -39,21 +39,31 @@ int main (int argc, const char * argv[]) {
         return EXIT_FAILURE;
     }
 	
-    
+    printf("model:\n");
     ising_print(input);
-    do_inference(&output, input, context, device_id, 400);
-    ising_print(output);
-    destroy_ising(&output);
+    
+	do_inference(&output, input, context, device_id, 400);
+	printf("EP parallel:\n");
+    ising_print_single(output);
+	
+	printf("EP sequential:\n");
     sequential_inference(&output, input, 400);
-    ising_print(output);
+    ising_print_single(output);
 	
 	ising_t exact;
 //	exact_marginals_parallel(&exact, input, context, device_id);
-	exact_marginals(&exact, input);
+//	printf("Exact parallel log domain:\n");
+//	ising_print_single(exact);
 	
-	ising_print(exact);
+//	exact_marginals(&exact, input);
+//	printf("Exact sequential:\n");
+//	ising_print_single(exact);
+	
+//	exact_marginals_log_domain(&exact, input);
+//	printf("Exact sequential log domain:\n");
+//	ising_print_single(exact);
 	
     destroy_ising(&input);
-    destroy_ising(&output);
 	destroy_ising(&exact);
+	destroy_ising(&output);
 }

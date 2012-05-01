@@ -20,7 +20,7 @@
 #include "hello.h"
 #include "ising_exact.h"
 
-void exact_marginals(ising_t* result, ising_t model){
+void exact_marginals(ising_t* result, ising_t model){ //this one has precision issues, should avoid!
 	construct_ising(result, model.rows, model.cols);
 	assert(model.rows * model.cols < 32);
 	int N=pow(2, model.rows * model.cols);
@@ -63,12 +63,63 @@ void exact_marginals(ising_t* result, ising_t model){
 	free(marginals1);
 }
 
+void exact_marginals_log_domain(ising_t* result, ising_t model){
+	construct_ising(result, model.rows, model.cols);
+	assert(model.rows * model.cols < 32);
+	int N=pow(2, model.rows * model.cols);
+	float* marginals0 = (float*) calloc(model.rows * model.cols, sizeof(float));
+	float* marginals1 = (float*) calloc(model.rows * model.cols, sizeof(float));
+	for(int i=0; i<model.rows * model.cols; i++){
+		marginals0[i] = -1.0/0.0;
+		marginals1[i] = -1.0/0.0;
+	}
+	
+	for(int i = 0; i < N; i++){
+		float sum = 0;
+		for(int c = 0; c < model.cols; c++){
+			for(int r = 0; r < model.rows; r++){
+				if((i >> r * model.cols + c) & 1){
+					sum += model.singleton[r * model.cols + c];
+					if(r + 1 < model.rows && (i >> ((r + 1) * model.cols + c) & 1)){
+						sum+=model.pair[(r * model.cols + c) * 2];
+					}
+					if(c + 1 < model.cols && (i >> (r * model.cols + c + 1) & 1)){
+						sum+=model.pair[(r * model.cols + c) * 2 + 1];
+					}
+				}
+			}
+		}
+		
+		for(int c = 0; c < model.cols; c++){
+			for(int r = 0; r < model.rows; r++){
+				if((i >> r * model.cols + c) & 1){
+					marginals0[r * model.cols + c] = log_add(sum, marginals0[r * model.cols + c]);
+				}else{
+					marginals1[r * model.cols + c] = log_add(sum, marginals1[r * model.cols + c]);
+				}
+			}
+		}
+	}
+	
+	for(int i = 0; i < model.rows * model.cols; i++){
+		result->singleton[i] = marginals0[i] - marginals1[i];
+	}
+	
+	free(marginals0);
+	free(marginals1);
+}
+
 int exact_marginals_parallel(ising_t* result, ising_t model, cl_context context, cl_device_id device_id){
 	construct_ising(result, model.rows, model.cols);
 	assert(model.rows * model.cols < 32);
 	int N=pow(2, model.rows * model.cols);
 	float* marginals0 = (float*) calloc(model.rows * model.cols, sizeof(float));
 	float* marginals1 = (float*) calloc(model.rows * model.cols, sizeof(float));
+	for(int i=0; i<model.rows * model.cols; i++){
+		marginals0[i]=-1.0/0.0;
+		marginals1[i]=-1.0/0.0;
+	}
+	
 	char* KernelSource=read_kernel("kernel_exact.cl");
 	
 	int err;
@@ -171,7 +222,7 @@ int exact_marginals_parallel(ising_t* result, ising_t model, cl_context context,
 	
 	
 	for(int i = 0; i < model.rows * model.cols; i++){
-		result->singleton[i] = (float) log(marginals0[i] / marginals1[i]);
+		result->singleton[i] = marginals0[i] - marginals1[i];
 	}
 	
 	free(marginals0);
