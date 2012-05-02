@@ -24,6 +24,8 @@ extern void construct_ising(ising_t *ising, int rows, int cols);
 extern void destroy_ising(ising_t *ising);
 extern void random_fill_ising(ising_t *ising, float lowerBound, float upperBound, unsigned* seed);
 extern void ising_print(ising_t ising);
+extern void ising_print_single(ising_t ising);
+extern void ising_print_pair(ising_t ising);
 
 /// Inference routines
 extern int do_inference(ising_t* result, ising_t model, cl_context context, cl_device_id device_id, int numIter);

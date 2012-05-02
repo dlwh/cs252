@@ -182,14 +182,21 @@ int do_inference(ising_t* result, ising_t model, cl_context context, cl_device_i
 }
 
 void ising_print(ising_t ising) {
-    for(int r = 0; r < ising.rows; ++r) {
+    ising_print_single(ising);
+    ising_print_pair(ising);
+}
+
+void ising_print_single(ising_t ising){
+	for(int r = 0; r < ising.rows; ++r) {
         for(int c = 0; c < ising.cols; ++c) {
             printf("(%d, %d) %.3f\n", r, c, get_ising_singleton(&ising, r, c));
         }
         printf("\n");
     }
-    
-    for(int r =0; r < ising.rows; ++r) {
+}
+
+void ising_print_pair(ising_t ising){
+	for(int r =0; r < ising.rows; ++r) {
         for(int c = 0; c < ising.cols; ++c) {
             for(int dir = 0; dir < 2; ++dir) {
                 int nr = dir == IM_DOWN ? r + 1 : r;

@@ -128,7 +128,6 @@ int exact_marginals_parallel(ising_t* result, ising_t model, cl_context context,
     if (!commands)
     {
         printf("Error: Failed to create a command commands!\n");
-		printf("%i %i\n", CL_INVALID_VALUE, err);
         return EXIT_FAILURE;
     }
     
@@ -178,7 +177,7 @@ int exact_marginals_parallel(ising_t* result, ising_t model, cl_context context,
         return 1;
     }
 	
-	size_t global[] = {N};
+	size_t global = N;
 	size_t local;
 	
 	err = clGetKernelWorkGroupInfo(kernelIter, device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL);
@@ -201,7 +200,7 @@ int exact_marginals_parallel(ising_t* result, ising_t model, cl_context context,
 	}
 	
 	cl_event configuration_event;
-	err = clEnqueueNDRangeKernel(commands, kernelIter, 1, NULL, global, NULL, 0, NULL, &configuration_event);
+	err = clEnqueueNDRangeKernel(commands, kernelIter, 1, NULL, &global, NULL, 0, NULL, &configuration_event);
 	if (err)
 	{
 		printf("Error: Failed to execute kernel!\n");
@@ -209,7 +208,7 @@ int exact_marginals_parallel(ising_t* result, ising_t model, cl_context context,
 	}
 	
 	clFinish(commands);
-
+	
 	// Read back the results from the device to verify the output
 	//
 	err = clEnqueueReadBuffer(commands, clmarginals0, CL_TRUE, 0, sizeof(float) * count, marginals0, 0, NULL, NULL );
@@ -221,7 +220,7 @@ int exact_marginals_parallel(ising_t* result, ising_t model, cl_context context,
 	}
 	
 	
-	for(int i = 0; i < model.rows * model.cols; i++){
+	for(int i = 0; i < count; i++){
 		result->singleton[i] = marginals0[i] - marginals1[i];
 	}
 	
