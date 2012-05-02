@@ -14,7 +14,7 @@
 
 #pragma OPENCL EXTENSION cl_khr_fp64 : enable
 
-float inline log_add(float a, float b){
+float inline static log_add(float a, float b){
 	if(a>b){
 		return a + log1p(exp(b-a));
 	}else{
