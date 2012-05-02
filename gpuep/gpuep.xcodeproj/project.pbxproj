@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		8DD76FAC0486AB0100D96B5E /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 08FB7796FE84155DC02AAC07 /* main.c */; settings = {ATTRIBUTES = (); }; };
 		B9EA164215475FF700AECFA9 /* ising.c in Sources */ = {isa = PBXBuildFile; fileRef = B9EA164115475FF700AECFA9 /* ising.c */; };
+		F6913826154E7352006F1F70 /* ising_exact.c in Sources */ = {isa = PBXBuildFile; fileRef = F6913825154E7352006F1F70 /* ising_exact.c */; };
+		F691390F154F0A4D006F1F70 /* kernel_exact.cl in CopyFiles */ = {isa = PBXBuildFile; fileRef = F691390B154F0A40006F1F70 /* kernel_exact.cl */; };
 		F69FD802153E35AD0050C973 /* hello.c in Sources */ = {isa = PBXBuildFile; fileRef = F69FD801153E35AD0050C973 /* hello.c */; };
 		F6F3B91A153E2DC600021725 /* kernel.cl in CopyFiles */ = {isa = PBXBuildFile; fileRef = F6F3B8F0153E2B4100021725 /* kernel.cl */; };
 		F6F3B932153E321200021725 /* OpenCL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6F3B931153E321200021725 /* OpenCL.framework */; };
@@ -21,6 +23,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 6;
 			files = (
+				F691390F154F0A4D006F1F70 /* kernel_exact.cl in CopyFiles */,
 				F6F3B91A153E2DC600021725 /* kernel.cl in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -29,10 +32,13 @@
 
 /* Begin PBXFileReference section */
 		08FB7796FE84155DC02AAC07 /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
-		8DD76FB20486AB0100D96B5E /* gpuep */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "compiled.mach-o.executable"; path = gpuep; sourceTree = BUILT_PRODUCTS_DIR; };
+		8DD76FB20486AB0100D96B5E /* gpuep */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = gpuep; sourceTree = BUILT_PRODUCTS_DIR; };
 		B9EA164015475F2500AECFA9 /* ising.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ising.h; sourceTree = "<group>"; };
 		B9EA164115475FF700AECFA9 /* ising.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ising.c; sourceTree = "<group>"; };
 		C6A0FF2C0290799A04C91782 /* gpuep.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = gpuep.1; sourceTree = "<group>"; };
+		F6913824154E7352006F1F70 /* ising_exact.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ising_exact.h; sourceTree = "<group>"; };
+		F6913825154E7352006F1F70 /* ising_exact.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ising_exact.c; sourceTree = "<group>"; };
+		F691390B154F0A40006F1F70 /* kernel_exact.cl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.opencl; path = kernel_exact.cl; sourceTree = "<group>"; };
 		F69FD801153E35AD0050C973 /* hello.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = hello.c; sourceTree = "<group>"; };
 		F6F3B8F0153E2B4100021725 /* kernel.cl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.opencl; path = kernel.cl; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.opencl; };
 		F6F3B922153E2EF800021725 /* hello.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hello.h; sourceTree = "<group>"; };
@@ -65,6 +71,9 @@
 		08FB7795FE84155DC02AAC07 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				F6913824154E7352006F1F70 /* ising_exact.h */,
+				F6913825154E7352006F1F70 /* ising_exact.c */,
+				F691390B154F0A40006F1F70 /* kernel_exact.cl */,
 				F69FD801153E35AD0050C973 /* hello.c */,
 				F6F3B8F0153E2B4100021725 /* kernel.cl */,
 				08FB7796FE84155DC02AAC07 /* main.c */,
@@ -144,6 +153,7 @@
 				8DD76FAC0486AB0100D96B5E /* main.c in Sources */,
 				F69FD802153E35AD0050C973 /* hello.c in Sources */,
 				B9EA164215475FF700AECFA9 /* ising.c in Sources */,
+				F6913826154E7352006F1F70 /* ising_exact.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
