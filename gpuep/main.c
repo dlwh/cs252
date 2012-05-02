@@ -50,7 +50,7 @@ int main (int argc, const char * argv[]) {
     sequential_inference(&output, input, 400);
     ising_print_single(output);
 	
-	ising_t exact;
+	//ising_t exact;
 //	exact_marginals_parallel(&exact, input, context, device_id);
 //	printf("Exact parallel log domain:\n");
 //	ising_print_single(exact);
@@ -64,6 +64,6 @@ int main (int argc, const char * argv[]) {
 //	ising_print_single(exact);
 	
     destroy_ising(&input);
-	destroy_ising(&exact);
+//	destroy_ising(&exact);
 	destroy_ising(&output);
 }
