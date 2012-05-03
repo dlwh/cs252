@@ -12,7 +12,16 @@
 #include "hello.h"
 #include "ising.h"
 #include <math.h>
+#include "ising.h"
 #include <assert.h>
+
+float inline static log_add(float a, float b){
+	if(a>b){
+		return a + log1pf(expf(b-a));
+	}else{
+		return b + log1pf(expf(a-b));
+	}
+}
 
 void construct_ising(ising_t *ising, int rows, int cols) {
     ising->rows = rows;
@@ -28,12 +37,12 @@ void destroy_ising(ising_t *ising) {
     free(ising->pair);
 }
 
-void random_fill_ising(ising_t *ising, float lowerBound, float upperBound, unsigned* seed) {
+void random_fill_ising(ising_t *ising, float lowerBound, float upperBound, float pairLowerBound, float pairUpperBound, unsigned* seed) {
     int size = ising->rows * ising->cols;
     for(int i = 0; i < size; ++i) {
         ising->singleton[i] = (float)rand_r(seed)/RAND_MAX * (upperBound - lowerBound) + lowerBound;
-        ising->pair[i * 2] = (float)rand_r(seed)/RAND_MAX * (upperBound - lowerBound) + lowerBound;
-        ising->pair[i * 2 + 1] = (float)rand_r(seed)/RAND_MAX * (upperBound - lowerBound) + lowerBound;
+        ising->pair[i * 2] = (float)rand_r(seed)/RAND_MAX * (pairUpperBound - pairLowerBound) + pairLowerBound;
+        ising->pair[i * 2 + 1] = (float)rand_r(seed)/RAND_MAX * (pairUpperBound - pairLowerBound) + pairLowerBound;
     }
     
 }
@@ -90,7 +99,7 @@ int do_inference(ising_t* result, ising_t model, cl_context context, cl_device_i
     unsigned count = model.rows * model.cols;
     // every node has 2 edges (one to the right, and one down) except for bottom row and the right column, which have one fewer.
     if(power == 0) {
-       float numEdges = 2 * (model.rows * model.cols) - model.rows - model.cols;
+        float numEdges = 2; //* (model.rows * model.cols) - model.rows - model.cols;
        power = numEdges;
     }
     
@@ -214,17 +223,15 @@ void ising_print_pair(ising_t ising){
     }
 }
 
-int sequential_inference(ising_t* result, ising_t model, int numIter) {
+int sequential_inference(ising_t* result, ising_t model, float numEdges, int numIter) {
     construct_ising(result, model.rows, model.cols);
     float* ising_single = result->singleton;
     memcpy(result->singleton, model.singleton, model.rows * model.cols * sizeof(float));
     
     float* ising_pair = model.pair;
     float* ising_message = malloc(sizeof(float) * model.rows * model.cols * 4);
-    float* ising_message_out = malloc(sizeof(float) * model.rows * model.cols * 4);
     
     memset(ising_message, 0, sizeof(float) * model.rows * model.cols * 4);
-    memset(ising_message_out, 0, sizeof(float) * model.rows * model.cols * 4);
     
     int cols = model.cols;
     int rows = model.rows;
@@ -242,18 +249,20 @@ int sequential_inference(ising_t* result, ising_t model, int numIter) {
                         float edgeWeight = ising_pair[(r * cols + c) * 2 + dir];
                         float mesgToA = ising_message[(r * cols + c) * 4 + dir];
                         float mesgToB = ising_message[(nr * cols + nc) * 4 + otherDir];
-                        assert(iter == 0 || mesgToA == 0);
-                        assert(iter == 0 || mesgToB == 0);
-                        marginalWeightA -= mesgToA;
-                        marginalWeightB -= mesgToB;
+                        marginalWeightA -= mesgToA * numEdges;
+                        marginalWeightB -= mesgToB * numEdges;
                         
-                        float jointMarginal11 = expf(marginalWeightA + marginalWeightB + edgeWeight);
-                        float jointMarginal10 = expf(marginalWeightA);
-                        float jointMarginal01 = expf(marginalWeightB);
-                        float sum = jointMarginal11 + jointMarginal10 + jointMarginal01 + 1;
+                        float jointMarginal11 = marginalWeightA + marginalWeightB + edgeWeight * numEdges;
+                        float jointMarginal10 = marginalWeightA;
+                        float jointMarginal01 = marginalWeightB;
                         
-                        float newMargA = (jointMarginal11 + jointMarginal10)/sum;
-                        float newMargB = (jointMarginal11 + jointMarginal01)/sum;
+                        
+                        float jointMarginalA1 = log_add(jointMarginal11,jointMarginal10);
+                        float jointMarginalB1 = log_add(jointMarginal11,jointMarginal01);
+                        float sum = log_add(log_add(jointMarginalA1, jointMarginal01),0.0);
+                        
+                        float newMargA = expf(jointMarginalA1 - sum);
+                        float newMargB = expf(jointMarginalB1 - sum);
                         
                         // logit function
                         float newTargetA = logf(newMargA/(1-newMargA));
@@ -261,32 +270,19 @@ int sequential_inference(ising_t* result, ising_t model, int numIter) {
                         float adjA = newTargetA - marginalWeightA;
                         float adjB = newTargetB - marginalWeightB;
                         
-                        ising_message_out[(r * cols + c) * 4 + dir] = adjA;
-                        ising_message_out[(nr * cols + nc) * 4 + otherDir] = adjB;
-                        assert(adjA < 1/0.0);
-                        assert(adjB < 1/0.0);
+                        ising_message[(r * cols + c) * 4 + dir] = adjA;
+                        ising_message[(nr * cols + nc) * 4 + otherDir] = adjB;
+                        ising_single[r * cols + c] = newTargetA;
+                        ising_single[nr * cols + nc] = newTargetB;
+                        //assert(adjA < 1/0.0);
+                        //assert(adjB == adjB);
+                        //assert(adjB < 1/0.0);
                     }
                 }
             }
         }
         
-        float* ising_marginal_out = result->singleton;
-        
-        for(int r = 0; r < model.rows; ++r) {
-            for(int c = 0; c < model.cols; ++c) {
-                int offset = (r * cols + c) * 4;
-                float result = model.singleton[offset/4];
-                assert(result < 1/0.0);
-                for(int i = 0; i < 4; ++i) {
-                    result += ising_message_out[offset + i];
-                    assert(result < 1/0.0);
-                    assert(result == result);
-                }
-                ising_marginal_out[offset/4] = result;
-            }
-        }
     }
     free(ising_message);
-    free(ising_message_out);
     return 0;
 }

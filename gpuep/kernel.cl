@@ -6,6 +6,15 @@ typedef enum {
     IM_UP
 } im_dir_t;
 
+
+float inline static log_add(float a, float b){
+	if(a>b){
+		return a + log1p(exp(b-a));
+	}else{
+		return b + log1p(exp(a-b));
+	}
+}
+
 __kernel void updateFactor(__global float* ising_pair,
                            __global float* ising_single,
                            __global float* ising_message, 
@@ -26,30 +35,25 @@ __kernel void updateFactor(__global float* ising_pair,
         float edgeWeight = ising_pair[(r * cols + c) * 2 + dir];
         float mesgToA = ising_message[(r * cols + c) * 4 + dir];
         float mesgToB = ising_message[(nr * cols + nc) * 4 + otherDir];
-        marginalWeightA -= mesgToA * one_over_numEdges;
-        marginalWeightB -= mesgToB * one_over_numEdges;
+        marginalWeightA -= mesgToA * numEdges;
+        marginalWeightB -= mesgToB * numEdges;
         
-        float jointMarginal11 = exp(marginalWeightA + marginalWeightB + edgeWeight);
-        float jointMarginal10 = exp(marginalWeightA);
-        float jointMarginal01 = exp(marginalWeightB);
-        float sum = jointMarginal11 + jointMarginal10 + jointMarginal01 + 1;
+        float jointMarginal11 = marginalWeightA + marginalWeightB + edgeWeight * numEdges;
+        float jointMarginal10 = marginalWeightA;
+        float jointMarginal01 = marginalWeightB;
         
-        float newMargA = (jointMarginal11 + jointMarginal10)/sum;
-        float newMargB = (jointMarginal11 + jointMarginal01)/sum;
+        float jointMarginalA1 = log_add(jointMarginal11,jointMarginal10);
+        float jointMarginalB1 = log_add(jointMarginal11,jointMarginal01);
+        float sum = log_add(log_add(jointMarginalA1, jointMarginal01),0.0);
+        
+        float newMargA = exp(jointMarginalA1 - sum);
+        float newMargB = exp(jointMarginalB1 - sum);
         
         // logit function
         float newTargetA = log(newMargA/(1-newMargA));
         float newTargetB = log(newMargB/(1-newMargB));
         float adjA = newTargetA - marginalWeightA;
         float adjB = newTargetB - marginalWeightB;
-        
-        // damp updates
-        if(numEdges != 1.0f) {
-            adjA *= one_over_numEdges;
-            adjB *= one_over_numEdges;
-            adjA += (1 - one_over_numEdges) * mesgToA;
-            adjB += (1 - one_over_numEdges) * mesgToB;
-        }
         
         ising_message_out[(r * cols + c) * 4 + dir] = adjA;
         ising_message_out[(nr * cols + nc) * 4 + otherDir] = adjB;
@@ -67,6 +71,6 @@ __kernel void updateMarginals(__global float* ising_marginal_in,
     for(int i = 0; i < 4; ++i) {
         result += ising_message[offset + i];
     }
-    ising_marginal_out[offset/4] = result;
+    ising_marginal_out[offset/4] = .1 * result + .9 * ising_marginal_out[offset/4];
 }
 

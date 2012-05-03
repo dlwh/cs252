@@ -12,17 +12,17 @@
 
 void test(int a, int b);
 
-#define NUM_ROWS 5
-#define NUM_COLS 6
+#define NUM_ROWS 4
+#define NUM_COLS 4
 
 int main (int argc, const char * argv[]) {
 	ising_t input;
     construct_ising(&input, NUM_ROWS, NUM_COLS);
     ising_t output;
     
-    unsigned seed = 3;
+    unsigned seed = 7;
     
-    random_fill_ising(&input, -1, 1, &seed);
+    random_fill_ising(&input, -1, 1, -1, 1, &seed);
     
     int gpu = 1;
     
@@ -45,16 +45,16 @@ int main (int argc, const char * argv[]) {
     printf("model:\n");
     ising_print(input);
     
-	do_inference(&output, input, context, device_id, 0, 400);
+	do_inference(&output, input, context, device_id, 2, 1);
 	printf("EP parallel convex:\n");
     ising_print_single(output);
     
-	do_inference(&output, input, context, device_id, 1, 400);
+	do_inference(&output, input, context, device_id, 1, 100);
 	printf("EP parallel:\n");
     ising_print_single(output);
 	
 	printf("EP sequential:\n");
-    sequential_inference(&output, input, 400);
+    sequential_inference(&output, input, 1, 100);
     ising_print_single(output);
 	
 	ising_t exact;
@@ -66,9 +66,9 @@ int main (int argc, const char * argv[]) {
 //	printf("Exact sequential:\n");
 //	ising_print_single(exact);
 	
-//	exact_marginals_log_domain(&exact, input);
-//	printf("Exact sequential log domain:\n");
-//	ising_print_single(exact);
+	exact_marginals_log_domain(&exact, input);
+	printf("Exact sequential log domain:\n");
+	ising_print_single(exact);
 	
     destroy_ising(&input);
 //	destroy_ising(&exact);
