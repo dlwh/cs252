@@ -8,23 +8,6 @@
 #include <sys/stat.h>
 #include <OpenCL/opencl.h>
 
-char* read_kernel(const char* filename){
-	FILE *fl=fopen(filename, "rt");
-	if (fl==NULL){
-		printf("Missing kernel file %s\n", filename);
-		exit(1);
-	}
-	fseek(fl, 0, SEEK_END);
-	int len= ftell(fl);
-	rewind(fl);
-	char *KernelSource = (char*) malloc(sizeof(char)*len + 1);
-	KernelSource[len]='\0';
-	fread(KernelSource, sizeof(char), len, fl);
-	fclose(fl);
-	
-	return KernelSource;
-}
-
 #define DATA_SIZE (1024)
 
 int execute(){

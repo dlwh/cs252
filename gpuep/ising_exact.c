@@ -17,7 +17,7 @@
 #include <sys/stat.h>
 #include <assert.h>
 
-#include "hello.h"
+#include "utils.h"
 #include "ising_exact.h"
 
 void exact_marginals(ising_t* result, ising_t model){ //this one has precision issues, should avoid!

@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include "utils.h"
 #include "ising.h"
 #include "ising_exact.h"
 
