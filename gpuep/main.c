@@ -12,9 +12,12 @@
 
 void test(int a, int b);
 
+#define NUM_ROWS 5
+#define NUM_COLS 6
+
 int main (int argc, const char * argv[]) {
 	ising_t input;
-    construct_ising(&input, 5, 6);
+    construct_ising(&input, NUM_ROWS, NUM_COLS);
     ising_t output;
     
     unsigned seed = 3;
@@ -42,7 +45,11 @@ int main (int argc, const char * argv[]) {
     printf("model:\n");
     ising_print(input);
     
-	do_inference(&output, input, context, device_id, 400);
+	do_inference(&output, input, context, device_id, 0, 400);
+	printf("EP parallel convex:\n");
+    ising_print_single(output);
+    
+	do_inference(&output, input, context, device_id, 1, 400);
 	printf("EP parallel:\n");
     ising_print_single(output);
 	
@@ -50,7 +57,7 @@ int main (int argc, const char * argv[]) {
     sequential_inference(&output, input, 400);
     ising_print_single(output);
 	
-	//ising_t exact;
+	ising_t exact;
 //	exact_marginals_parallel(&exact, input, context, device_id);
 //	printf("Exact parallel log domain:\n");
 //	ising_print_single(exact);

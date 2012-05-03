@@ -28,7 +28,7 @@ extern void ising_print_single(ising_t ising);
 extern void ising_print_pair(ising_t ising);
 
 /// Inference routines
-extern int do_inference(ising_t* result, ising_t model, cl_context context, cl_device_id device_id, int numIter);
+extern int do_inference(ising_t* result, ising_t model, cl_context context, cl_device_id device_id, float power, int numIter);
 extern int sequential_inference(ising_t* result, ising_t model, int numIter);
 
 static inline float get_ising_singleton(ising_t* ising, int row, int col) {

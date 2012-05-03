@@ -10,7 +10,9 @@ __kernel void updateFactor(__global float* ising_pair,
                            __global float* ising_single,
                            __global float* ising_message, 
                            __global float* ising_message_out, 
+                           float numEdges,
                            int rows, int cols) {
+    float one_over_numEdges = native_recip(numEdges);
 	int r = get_global_id(0);                                          
 	int c = get_global_id(1);                                         
 	im_dir_t dir = get_global_id(2);                                          
@@ -24,8 +26,8 @@ __kernel void updateFactor(__global float* ising_pair,
         float edgeWeight = ising_pair[(r * cols + c) * 2 + dir];
         float mesgToA = ising_message[(r * cols + c) * 4 + dir];
         float mesgToB = ising_message[(nr * cols + nc) * 4 + otherDir];
-        marginalWeightA -= mesgToA;
-        marginalWeightB -= mesgToB;
+        marginalWeightA -= mesgToA * one_over_numEdges;
+        marginalWeightB -= mesgToB * one_over_numEdges;
         
         float jointMarginal11 = exp(marginalWeightA + marginalWeightB + edgeWeight);
         float jointMarginal10 = exp(marginalWeightA);
@@ -40,6 +42,14 @@ __kernel void updateFactor(__global float* ising_pair,
         float newTargetB = log(newMargB/(1-newMargB));
         float adjA = newTargetA - marginalWeightA;
         float adjB = newTargetB - marginalWeightB;
+        
+        // damp updates
+        if(numEdges != 1.0f) {
+            adjA *= one_over_numEdges;
+            adjB *= one_over_numEdges;
+            adjA += (1 - one_over_numEdges) * mesgToA;
+            adjB += (1 - one_over_numEdges) * mesgToB;
+        }
         
         ising_message_out[(r * cols + c) * 4 + dir] = adjA;
         ising_message_out[(nr * cols + nc) * 4 + otherDir] = adjB;

@@ -38,7 +38,7 @@ void random_fill_ising(ising_t *ising, float lowerBound, float upperBound, unsig
     
 }
 
-int do_inference(ising_t* result, ising_t model, cl_context context, cl_device_id device_id, int numIter) {
+int do_inference(ising_t* result, ising_t model, cl_context context, cl_device_id device_id, float power, int numIter) {
     construct_ising(result, model.rows, model.cols);
     char* KernelSource=read_kernel("kernel.cl");
     
@@ -88,6 +88,11 @@ int do_inference(ising_t* result, ising_t model, cl_context context, cl_device_i
     }
     
     unsigned count = model.rows * model.cols;
+    // every node has 2 edges (one to the right, and one down) except for bottom row and the right column, which have one fewer.
+    if(power == 0) {
+       float numEdges = 2 * (model.rows * model.cols) - model.rows - model.cols;
+       power = numEdges;
+    }
     
     cl_mem pair = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(float) * count * 2, NULL, NULL);
     cl_mem single = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(float) * count, NULL, NULL);
@@ -126,8 +131,9 @@ int do_inference(ising_t* result, ising_t model, cl_context context, cl_device_i
         err |= clSetKernelArg(kernelInf, 1, sizeof(cl_mem), &single_out);
         err |= clSetKernelArg(kernelInf, 2, sizeof(cl_mem), &message1);
         err |= clSetKernelArg(kernelInf, 3, sizeof(cl_mem), &message2);
-        err |= clSetKernelArg(kernelInf, 4, sizeof(int), &model.rows);
-        err |= clSetKernelArg(kernelInf, 5, sizeof(int), &model.cols);
+        err |= clSetKernelArg(kernelInf, 4, sizeof(float), &power);
+        err |= clSetKernelArg(kernelInf, 5, sizeof(int), &model.rows);
+        err |= clSetKernelArg(kernelInf, 6, sizeof(int), &model.cols);
         if (err != CL_SUCCESS)
         {
             printf("Error: Failed to set kernel arguments! %d\n", err);
