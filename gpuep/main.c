@@ -10,10 +10,13 @@
 #include "ising.h"
 #include "ising_exact.h"
 
+#include "pairwise.h"
+
 void test(int a, int b);
 
 #define NUM_ROWS 4
 #define NUM_COLS 4
+const int NUM_VARS = 16;
 
 int main (int argc, const char * argv[]) {
 	ising_t input;
@@ -56,7 +59,7 @@ int main (int argc, const char * argv[]) {
 	printf("EP sequential:\n");
     sequential_inference(&output, input, 1, 100);
     ising_print_single(output);
-	
+    
 	ising_t exact;
 //	exact_marginals_parallel(&exact, input, context, device_id);
 //	printf("Exact parallel log domain:\n");
@@ -73,4 +76,22 @@ int main (int argc, const char * argv[]) {
     destroy_ising(&input);
 //	destroy_ising(&exact);
 	destroy_ising(&output);
+    
+    
+    printf("pairwise\n=====================\n");
+    
+    pairwise_t inputp;
+    construct_pairwise(&inputp, NUM_VARS);
+    pairwise_t outputp;
+    
+    random_fill_pairwise(&inputp, -1, 1, -1, 1, &seed);
+	printf("EP sequential:\n");
+    pair_sequential_inference(&outputp, inputp, 1, 100);
+    pairwise_print_single(outputp);
+    
+	pairwise_t exactp;
+	pairwise_exact_marginals_log_domain(&exactp, inputp);
+	printf("Exact sequential log domain:\n");
+	pairwise_print_single(exactp);
+    
 }
