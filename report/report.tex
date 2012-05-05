@@ -25,6 +25,7 @@
 \usepackage{tipa}
 
 \usepackage{times}
+\newcommand{\bs}[0]{\textrm{\textbackslash}}
 
 %\documentstyle[times,art10,twocolumn,latex8]{article}
 
@@ -123,7 +124,7 @@ We begin by motivating the EP objective function. First, we use standard results
 function $A(\theta)$:
 \begin{equation}
   \begin{split}
-     A(\theta) &= \log \sum_x \langle\theta,\varphi(x)\rangle\\
+     A(\theta) &= \log \sum_x \langle\theta,\phi(x)\rangle\\
      &= \max_{\mu \in \mathcal{M}} \{ \langle\theta,\mu\rangle + H(\mu) \}
    \end{split}
  \end{equation}
@@ -135,14 +136,14 @@ many constraints defining the set $\mathcal M$. Second, the term
 $H(\mu)$ might not decouple in a way that admits efficient dynamic
 programming. We will relax both of these conditions.
 
-First, we split the graphical model with features $\varphi$ into
+First, we split the graphical model with features $\phi$ into
 a number of components. Specifically, there are the \textit{core}
-features $\varphi^0$, and then a set of \textit{augmented}
-features $\varphi^i$. In the Ising model, the core features would
-be the singleton potentials, while the $\varphi^i$ correspond to
+features $\phi^0$, and then a set of \textit{augmented}
+features $\phi^i$. In the Ising model, the core features would
+be the singleton potentials, while the $\phi^i$ correspond to
 non-overlapping subsets of the various edges. Clearly, taking all
 of these features together yields the original model, while taking
-just the core features and one of the $\varphi^i$ yields 
+just the core features and one of the $\phi^i$ yields 
 a relaxed approximation to the full model, which we will call an
 \textit{augmented} model.
 
@@ -239,34 +240,68 @@ Given this modified $G$, we define the Lagrangian:
    \end{split}
  \end{equation}
 Taking gradients and setting them to 0 we obtain:
-\begin{equation}
+\begin{equation*}
   \begin{split}
     0 &= \nabla_{\mu^0} L(\cdot) \\
     &= \theta^0 + \nabla H(\mu^0) + \sum_i
     \lambda_i \\
     &= \theta^0  - \log \mu^0 + \sum_i \lambda_i + \mathrm{const} \\
-    \log \mu^0 &= \theta  + \sum_i \lambda_i + \mathrm{const} \\ 
-    \mu^0(x) &\propto \exp(\left \langle \theta  + \sum_i \lambda_i, \phi^0(x) \right\rangle)\\
+    \log \mu^0 &= \theta^0  + \sum_i \lambda_i + \mathrm{const} \\ 
+    \mu^0(x) &\propto \exp(\left \langle \theta^0  + \sum_i \lambda_i, \phi^0(x) \right\rangle)\\
     &\stackrel{\Delta}{=} q(x)
    \end{split}
- \end{equation}
+ \end{equation*}
 Because $\mu^0$  is a probability distribution, $\mu^0$ is a
 distribution that has the same form as the base distribution.
 
 Taking derivatives with respect to each $(\eta^i,\mu^i)$ we have:
-\begin{equation}
+\begin{equation*}
   \begin{split}
     0 &= \nabla_{(\eta^i,\mu^i)} L(\cdot) \\
-    &= \theta^i + \nabla H\left((\eta^i,\mu^i)\right) - \nabla
-    H(\eta^i) - \lambda_i \\
-    &= \theta^i  - \log \left (\stackrel{\mu^i}{\eta^i}\right) +
-    \log \eta^i  +  \sum_i
-    \lambda_i + \mathrm{const} \\
-    \log \mu^0 &= \theta^i  + \sum_i \lambda_i + \mathrm{const} \\
-    \mu^0(x) &\propto \exp(\left \langle \theta  + \sum_i \lambda_i,
-    \phi^0(x) \right\rangle)\\
+    &= \theta^i + \rho_i \nabla H\left((\eta^i,\mu^i)\right) - \rho_i \nabla
+    H(\eta^i) -\lambda_i \\
+    &= \theta^i  - \rho_i \log \left (\stackrel{\mu^i}{\eta^i}\right) +
+  \rho_i   \log \eta^i  - \lambda_i \\
+   \rho_i   \log \left (\stackrel{\mu^i}{\eta^i}\right)&= \theta^i  -
+    \lambda_i + \rho_i \log \eta^i
    \end{split}
- \end{equation}
+ \end{equation*}
+Using the fact that $\eta^i = \mu^0$ at the optimum and doing
+some algebra, we have:
+\begin{equation*}
+  \begin{split}
+    \rho_i \log \left (\stackrel{\mu^i}{\eta^i}\right)&= \theta^i  -
+    \lambda_i + \rho_i \log \mu^0 \\
+    \rho_i \log \left (\stackrel{\mu^i}{\eta^i}\right)&= \theta^i  -
+    \lambda_i + \rho_i \cdot ( \theta^0  + \sum_\ell \lambda_\ell) \\
+    \log \left (\stackrel{\mu^i}{\eta^i}\right)&=  \frac1\rho_i
+    \theta^i  + \theta^0  + \sum_{\ell \ne i} \lambda_\ell  +
+    (1-\frac 1\rho_i)\lambda_i\\
+    q_i(x) & \propto \exp(\left \langle \theta^0  + \sum_{\ell \ne
+    i}\lambda_\ell + (1-\frac 1\rho_i)\lambda_i , \phi^0(x)
+    \right\rangle\\ &\phantom{\cdots\cdots\cdots} + \frac1\rho_i \langle \theta^i,\phi^i(x)
+    \rangle )\\
+   \end{split}
+ \end{equation*}
+
+This implies a procedure very similar to EP that is actually a
+special instance of power EP(XXX cite).  Identifying $\tilde f_i(x) =
+\exp(\langle\lambda_i,\phi^0(x)\rangle)$ and $f_i(x) =
+\exp(\langle\theta^i,\phi^i(x)\rangle)$ we can define convex EP as:
+\begin{enumerate}
+  \item Initialize $q(x) \propto f_0(x) \prod_i \tilde f_i(x)$
+  \item Create $q^{\bs i}(x) = q(x)f(x)^{1/\rho_i - 1}$
+  \item Minimize $\mathrm{KL}\left (q^{\bs i}(x)f(x)^{\frac1\rho_i} || q(x)\right)$
+  \item Update $\tilde f_i(x) = q(x)/q^{\bs i}(x)$
+\end{enumerate}
+
+Note that this algorithm has a kind of hysteresis: powers of the
+$f_i$ are subtracted out rather than all of them. This is an
+interesting effect that helps explain why this algorithm is
+expected to perform better in parallel: by keeping some ``old''
+information, the convex algorithm is less likely to get stuck
+in a fixed loop. As we shall show in our experiments, this seems to
+be true in practice.
 
 \section{Experiments}
 
