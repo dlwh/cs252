@@ -109,7 +109,7 @@ We propose a new message passing algorithm called Convex Expectation
 Propagation (CEP) that allows for non-serialized concurrent updates
 without introducing the same pathologies possible in the na\"ive
 algorithm.  One class of approximations---convex approximations---ensures
-that there is only one optimum.\cite{wainwright03trw} Thus, different
+that there is only one optimum\cite{wainwright03trw}. Thus, different
 pieces of the structure of the graph (which are operating largely
 independently on different processors) cannot update towards different
 local optima, which is one of the primary sources of oscillation.
@@ -517,6 +517,16 @@ expected to perform better in parallel: by keeping some ``old''
 information, the convex algorithm is less likely to get stuck
 in a fixed loop. As we shall show in our experiments, this seems to
 be true in practice.
+
+Finally, it is important to keep in mind what we have done here:
+this algorithm optimizes an objective that is usually \textbf{more}
+approximate that standard EP. In essence, this is a
+convergence/accuracy tradeoff. However, there is one possible
+compromise we can make. Note that $\rho = 1$ yields the original
+EP objective. We can imagine interpolating somewhere between $\rho
+= 1$ and the actual convex value of $\rho$ in the hope of obtaining
+improved convergence and improved accuracy. We term this
+unprincipled approach ``pseudo-convex expectation propagation.''
 
 
 \begin{figure}[h!]\centering
