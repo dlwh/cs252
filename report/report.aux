@@ -1,17 +1,62 @@
 \relax 
+\citation{Koller2009pgm}
+\citation{AFR11}
+\citation{Minka01}
+\citation{CsekeHeskes2010}
+\citation{wainwright03trw}
 \@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces An Ising model, a commonly employed synthetic class of graphical model. XXX\relax }}{1}}
+\citation{taskar03m3n}
+\citation{Minka01}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces A 2-D Ising model, a commonly employed synthetic class of graphical model. Ising models are pairwise graphical models over binary-valued random variables with two kind of potentials: singleton and pair. Singleton potentials govern the probability a variable is ``on'' in isolation, while the pairwise potentials govern the extent to which variables agree or disagree with their neighbors.\relax }}{2}}
 \providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
-\newlabel{fig:ising}{{1}{1}}
-\@writefile{toc}{\contentsline {section}{\numberline {2}Graphical Models}{1}}
-\@writefile{toc}{\contentsline {section}{\numberline {3}Inference Algorithms}{1}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Convex Expectation Propagation}{1}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}The EP Objective}{2}}
-\newlabel{eqn:epentropy}{{2}{2}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Convex EP}{2}}
-\citation{ex1}
-\citation{ex2}
+\newlabel{fig:ising}{{1}{2}}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Graphical Models}{2}}
+\newlabel{eqn:prob}{{1}{2}}
+\newlabel{eqn:pairwise}{{3}{2}}
+\citation{Minka01}
+\citation{wainwright03trw}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces EP functions by using a ``core'' graph and a collection of ``augmented'' graphs. The goal is to approximate the original connected graph (like in Figure 1\hbox {}) with the fully disconnected graph, by augmenting the graph one at a time, and iteratively ``projecting'' this augmented graph down to the original core graph.\relax }}{3}}
+\@writefile{lof}{\contentsline {subfigure}{\numberline{(a)}{\ignorespaces {Fully disconnected ``core'' graph}}}{3}}
+\@writefile{lof}{\contentsline {subfigure}{\numberline{(b)}{\ignorespaces {An ``augmented'' graph with one edge}}}{3}}
+\newlabel{fig:ep}{{2}{3}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Expectation Propagation}{3}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Convex Expectation Propagation}{3}}
+\citation{wainwright08graphical}
+\citation{wainwright08graphical}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}The EP Objective}{4}}
+\newlabel{eqn:epentropy}{{5}{4}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Convex EP}{4}}
+\citation{minka2004}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Evaluation}{5}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Implementation}{5}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Ising model}{5}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Singleton and pair potential typology.\relax }}{6}}
+\newlabel{typo}{{1}{6}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}$4 \times 4$ models}{6}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Increasing model size}{6}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Number of iterations before computed marginals change less than $10^{-4}$ in relative $L_1$ norm. Results are averaged over 100 $4 \times 4$ Ising instances per Ising type. Error bars are shown at 1 sigma. Notice that both the sequential and the naive parallel version of EP do not converge on some instances of positive strongly attractive models, but that the convex and pseudo-convex algorithms always converge.\relax }}{7}}
+\@writefile{lof}{\contentsline {subfigure}{\numberline{(a)}{\ignorespaces {Sequential EP}}}{7}}
+\@writefile{lof}{\contentsline {subfigure}{\numberline{(b)}{\ignorespaces {Naive parallel EP}}}{7}}
+\@writefile{lof}{\contentsline {subfigure}{\numberline{(c)}{\ignorespaces {Convexified EP}}}{7}}
+\@writefile{lof}{\contentsline {subfigure}{\numberline{(d)}{\ignorespaces {Pseudo-Convexified EP}}}{7}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Relative $L_1$ error after $10^{-4}$ convergence. Results are averaged over 100 $4 \times 4$ Ising instances per Ising type. Error bars are shown at 1 sigma. For this size of models, there is no significant difference in accuracy between sequential EP and naive parallel EP. Convex EP and pseudo-convex EP both show significant accuracy degradation with respect to EP.\relax }}{8}}
+\@writefile{lof}{\contentsline {subfigure}{\numberline{(a)}{\ignorespaces {Sequential EP}}}{8}}
+\@writefile{lof}{\contentsline {subfigure}{\numberline{(b)}{\ignorespaces {Naive parallel EP}}}{8}}
+\@writefile{lof}{\contentsline {subfigure}{\numberline{(c)}{\ignorespaces {Convexified EP}}}{8}}
+\@writefile{lof}{\contentsline {subfigure}{\numberline{(d)}{\ignorespaces {Pseudo-Convexified EP}}}{8}}
 \bibstyle{latex8}
-\bibdata{latex8}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Experiments}{3}}
-\@writefile{toc}{\contentsline {section}{\numberline {6}Conclusion}{3}}
+\bibdata{refs}
+\bibcite{AFR11}{1}
+\bibcite{CsekeHeskes2010}{2}
+\bibcite{Koller2009pgm}{3}
+\bibcite{Minka01}{4}
+\bibcite{minka2004}{5}
+\bibcite{taskar03m3n}{6}
+\bibcite{wainwright03trw}{7}
+\bibcite{wainwright08graphical}{8}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Eventually, both convex and pseudo-convex EP diverge on large positive strongly attractive instances. The maximum number of iterations was set to 1000 in this measurement.\relax }}{9}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Conclusion}{9}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Log-log plot of the wall time per iteration of sequential EP and parallel EPs (naive, convex and pseudo-convex) ran on a 4 cores Intel i7 CPU and a low end laptop GPU (AMD Radeon HD 6490M). Asymptotic slopes are unitary as the algorithm is linear in the number of nodes. The bi-modal behavior of the GPU implementation for large instances is most probably due to the limited amount of on-chip memory available (256Mb). As for the smaller instances, we suspect some interference between the OS and the GPU, such as GUI rendering.\relax }}{9}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Convergence and accuracy measures over $4 \times 4$, $4 \times 5$ and $5 \times 5$ models. Each group of 3 bars within a given instance size respectively represent negative strongly mixed, positive strongly repulsive and positive strongly attractive instances. The convexified and pseudo-convexified EP versions do improve convergence at a significant cost in terms of accuracy with respect to the naive parallel EP.\relax }}{10}}
+\@writefile{lof}{\contentsline {subfigure}{\numberline{(a)}{\ignorespaces {Convergence}}}{10}}
+\@writefile{lof}{\contentsline {subfigure}{\numberline{(b)}{\ignorespaces {Accuracy}}}{10}}
