@@ -12,87 +12,99 @@
 #include "ising_exact.h"
 
 #include "pairwise.h"
-
-void test(int a, int b);
-
-#define NUM_ROWS 4
-#define NUM_COLS 4
-const int NUM_VARS = 16;
+#include "measures.h"
 
 int main (int argc, const char * argv[]) {
-	ising_t input;
-    construct_ising(&input, NUM_ROWS, NUM_COLS);
-    ising_t output;
-    
-    unsigned seed = 7;
-    
-    random_fill_ising(&input, -1, 1, -1, 1, &seed);
-    
-    int gpu = 1;
-    
-    cl_device_id device_id;             // compute device id 
+/*	for(int single=-1; single<3; single++){
+		for(int pair=-2; pair<4; pair++){
+			measure_loop(4, 4, 100, 300, single, pair);
+		}
+	}
+*/	
+/*	for(int k=3; k<500; k++){
+		printf("%d\n", k);
+		measure_loop(k, k, 10, 1000, 2, 3);
+		measure_loop(k, k, 10, 1000, 2, -2);
+		measure_loop(k, k, 10, 1000, -1, 1);
+	}
+*/	
+//	measure_loop(630, 630, 10, 300, 2, -2);
+	
+	int gpu = 1;
+	/*------------------------------------------------------------------------------------------*/
+	cl_device_id device_id;
+	
+	int err = clGetDeviceIDs(NULL, gpu ? CL_DEVICE_TYPE_GPU : CL_DEVICE_TYPE_CPU, 1, &device_id, NULL);
+	if (err != CL_SUCCESS){
+		printf("Error: Failed to create a device group!\n");
+		return EXIT_FAILURE;
+	}
+	
+	cl_context context = clCreateContext(0, 1, &device_id, NULL, NULL, &err);
+	if (!context){
+		printf("Error: Failed to create a compute context!\n");
+		return EXIT_FAILURE;
+	}
+	
+	char* KernelSource=read_kernel("kernel.cl");
+	
+	
+	cl_command_queue commands = clCreateCommandQueue(context, device_id, 0, &err);
+	if (!commands){
+		printf("Error: Failed to create a command commands!\n");
+		printf("%i %i\n", CL_INVALID_VALUE, err);
+		return EXIT_FAILURE;
+	}
+	
+	
+	cl_program program = clCreateProgramWithSource(context, 1, (const char **) & KernelSource, NULL, &err);
+	if (!program){
+		printf("Error: Failed to create compute program!\n");
+		return EXIT_FAILURE;
+	}
+	
+	err = clBuildProgram(program, 0, NULL, NULL, NULL, NULL);
+	if (err != CL_SUCCESS){
+		size_t len;
+		char buffer[2048];
+		
+		printf("Error: Failed to build program executable!\n");
+		clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, sizeof(buffer), buffer, &len);
+		printf("%s\n", buffer);
+		return EXIT_FAILURE;
+	}
+	
+	cl_kernel kernelInf = clCreateKernel(program, "updateFactor", &err);
+	if (!kernelInf || err != CL_SUCCESS){
+		printf("Error: Failed to create compute kernel!\n");
+		return 1;
+	}
+	cl_kernel kernelMarg = clCreateKernel(program, "updateMarginals", &err);
+	if (!kernelMarg || err != CL_SUCCESS){
+		printf("Error: Failed to create compute kernel marg!\n");
+		return 1;
+	}
+	/*---------------------------------------------------------------------------------------*/
+	
+	
+	for(int i=3; i<500; i++){
+		//int s = (int) 100*pow(10, i/25.);
+		//int s=i;
+		
+		//printf("%d %d\n", i, s);
+		//measure_loop(s, s, 10, 100, 0, 0);
+		//measure_loop(s, s, 10, 100, 2, -2);
+		
+		printf("[%d, ", i);
+		measure_time(kernelInf, kernelMarg, commands, context, device_id, i, i, 2+ceil(900/(i*i)));
+	}
+}
 
-    int err = clGetDeviceIDs(NULL, gpu ? CL_DEVICE_TYPE_GPU : CL_DEVICE_TYPE_CPU, 1, &device_id, NULL);
-    if (err != CL_SUCCESS)
-    {
-        printf("Error: Failed to create a device group!\n");
-        return EXIT_FAILURE;
-    }
-    
-    cl_context context = clCreateContext(0, 1, &device_id, NULL, NULL, &err);
-    if (!context)
-    {
-        printf("Error: Failed to create a compute context!\n");
-        return EXIT_FAILURE;
-    }
-	
-    printf("model:\n");
-    ising_print(input);
-    
-	do_inference(&output, input, context, device_id, 2, 1);
-	printf("EP parallel convex:\n");
-    ising_print_single(output);
-    
-	do_inference(&output, input, context, device_id, 1, 100);
-	printf("EP parallel:\n");
-    ising_print_single(output);
-	
-	printf("EP sequential:\n");
-    sequential_inference(&output, input, 1, 100);
-    ising_print_single(output);
-    
-	ising_t exact;
-//	exact_marginals_parallel(&exact, input, context, device_id);
-//	printf("Exact parallel log domain:\n");
-//	ising_print_single(exact);
-	
-//	exact_marginals(&exact, input);
-//	printf("Exact sequential:\n");
-//	ising_print_single(exact);
-	
-	exact_marginals_log_domain(&exact, input);
-	printf("Exact sequential log domain:\n");
-	ising_print_single(exact);
-	
-    destroy_ising(&input);
-//	destroy_ising(&exact);
-	destroy_ising(&output);
-    
-    
-    printf("pairwise\n=====================\n");
-    
-    pairwise_t inputp;
-    construct_pairwise(&inputp, NUM_VARS);
-    pairwise_t outputp;
-    
-    random_fill_pairwise(&inputp, -1, 1, -1, 1, &seed);
-	printf("EP sequential:\n");
-    pair_sequential_inference(&outputp, inputp, 1, 100);
-    pairwise_print_single(outputp);
-    
-	pairwise_t exactp;
-	pairwise_exact_marginals_log_domain(&exactp, inputp);
-	printf("Exact sequential log domain:\n");
-	pairwise_print_single(exactp);
-    
+void instable(){
+	ising_t input;
+    construct_ising(&input, 2, 2);
+    input.pair[0]=-5;
+	input.pair[1]=-5;
+	input.pair[2]=5;
+	input.pair[5]=5;
 }
