@@ -14,6 +14,7 @@
 \usepackage{algorithm}
 \usepackage{amsfonts}
 \usepackage{subfigure}
+%\usepackage{subfig}
 \usepackage{amssymb}
 \usepackage[small]{caption}
  \usepackage{graphicx}
@@ -26,6 +27,8 @@
 
 \usepackage{times}
 \newcommand{\bs}[0]{\textrm{\textbackslash}}
+
+\DeclareMathOperator*{\unif}{Unif}
 
 %\documentstyle[times,art10,twocolumn,latex8]{article}
 
@@ -303,7 +306,79 @@ information, the convex algorithm is less likely to get stuck
 in a fixed loop. As we shall show in our experiments, this seems to
 be true in practice.
 
-\section{Experiments}
+\section{Evaluation}
+\subsection{Implementation}
+OpenCL. Underflow issues. log domain computations. slow.
+
+
+We benchmark on two dimensional binary Ising instances.
+\subsection{Ising model}
+The ising model. Typology
+
+\begin{table}[!h]\centering
+	\subtable{
+	\begin{tabular}{c|c}
+		Name & $\theta_i$ \\
+		\hline
+		negative & $ \unif[-1; 0]$ \\
+		zero & $0$\\
+		mixed & $ \unif[-1;1]$\\
+		positive & $ \unif[0;1]$\\
+	\end{tabular}}\subtable{
+	\begin{tabular}{c|c}
+		Name & $\theta_{i,j}$ \\
+		\hline
+		stronglyRepulsive & $ \unif[-3; 0]$ \\
+		repulsive & $\unif[-1;0]$\\
+		mixed & $ \unif[-1;1]$\\
+		stronglyMixed & $ \unif[-3;3]$\\
+		attractive & $ \unif[0;1]$\\
+		stronglyAttractive & $ \unif[0;3]$\\
+	\end{tabular}}
+	\caption{Singleton and pair potential typology.}
+	\label{typo}
+\end{table}
+
+As for any optimization algorithm, we are interested in three characteristics. Convergence. Accuracy. Speed.
+We start by determining challenging types of Ising models both in terms of convergence and accuracy for our algorithm. We then take a closer look at these type of instances.
+We evaluate accuracy for small instances where we can solve the model exactly (sizes of $5 \times 6$, or $2^{30}$ distinct configurations at most). 
+
+\subsection{$4 \times 4$ models}
+\begin{figure}\centering
+	\subfigure[Sequential EP]{\includegraphics[width=9cm]{plots/convergence/iterations_before_convergence_4x4_e-4_sequential.png}}\subfigure[Naive parallel EP]{\includegraphics[width=9cm]{plots/convergence/iterations_before_convergence_4x4_e-4_parallelGPU.png}}
+	\subfigure[Convexified EP]{\includegraphics[width=9cm]{plots/convergence/iterations_before_convergence_4x4_e-4_parallelGPUConvex.png}}\subfigure[Pseudo-Convexified EP]{\includegraphics[width=9cm]{plots/convergence/iterations_before_convergence_4x4_e-4_parallelGPUPseudoConvex.png}}
+	\caption{Number of iterations before computed marginals change less than $10^{-4}$ in relative $L_1$ norm. Results are averaged over 100 $4 \times 4$ Ising instances per Ising type. Error bars are shown at 1 sigma. Notice that both the sequential and the naive parallel version of EP do not converge on some instances of positive strongly attractive models, but that the convex and pseudo-convex algorithms always converge.}
+\end{figure}
+
+\newpage
+
+\begin{figure}\centering
+	\subfigure[Sequential EP]{\includegraphics[width=9cm]{plots/accuracy/Relative_error_4x4_e-4_sequential.png}}\subfigure[Naive parallel EP]{\includegraphics[width=9cm]{plots/accuracy/Relative_error_4x4_e-4_parallelGPU.png}}
+	\subfigure[Convexified EP]{\includegraphics[width=9cm]{plots/accuracy/Relative_error_4x4_e-4_parallelGPUConvex.png}}\subfigure[Pseudo-Convexified EP]{\includegraphics[width=9cm]{plots/accuracy/Relative_error_4x4_e-4_parallelGPUPseudoConvex.png}}
+	\caption{Relative $L_1$ error after $10^{-4}$ convergence. Results are averaged over 100 $4 \times 4$ Ising instances per Ising type. Error bars are shown at 1 sigma. For this size of models, there is no significant difference in accuracy between sequential EP and naive parallel EP. Convex EP and pseudo-convex EP both show significant accuracy degradation with respect to EP.}
+\end{figure}
+
+\newpage
+\subsection{Increasing model size}
+Interesting instances with respect to convergence are the negative strongly mixed, positive strongly repulsive and strongly attractive. We will only focus on these family instances.
+
+\newpage
+\begin{figure}\centering
+	\subfigure[Convergence]{\includegraphics[width=8cm]{plots/sizes/iterations_before_convergence_e-4.png}}
+	\subfigure[Accuracy]{\includegraphics[width=8cm]{plots/sizes/relative_error_e-4.png}}
+	\caption{Convergence and accuracy measures over $4 \times 4$, $4 \times 5$ and $5 \times 5$ models. Each group of 3 bars within a given instance size respectively represent negative strongly mixed, positive strongly repulsive and positive strongly attractive instances. The convexified and pseudo-convexified EP versions do improve convergence at a significant cost in terms of accuracy with respect to the naive parallel EP.}
+\end{figure}
+
+\begin{figure}\centering
+	\includegraphics[width=8cm]{plots/sizes/Iterations_before_convergence_e-4_positive_stronglyAttractive.png}
+	\caption{Eventually, both convex and pseudo-convex EP diverge on large positive strongly attractive instances. The maximum number of iterations was set to 1000 in this measurement.}
+\end{figure}
+
+\begin{figure}\centering
+	\includegraphics[width=8cm]{plots/sizes/time_per_iteration.png}
+	\caption{Log-log plot of the wall time per iteration of sequential EP and parallel EPs (naive, convex and pseudo-convex) ran on a 4 cores Intel i7 CPU and a low end laptop GPU (AMD Radeon HD 6490M). Asymptotic slopes are unitary as the algorithm is linear in the number of nodes. The bi-modal behavior of the GPU implementation for large instances is most probably due to the limited amount of on-chip memory available (256Mb). As for the smaller instances, we suspect some interference between the OS and the GPU, such as GUI rendering.}
+\end{figure}
+
 
 \section{Conclusion}
 
