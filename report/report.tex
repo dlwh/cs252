@@ -651,6 +651,16 @@ Last but not least, figure \ref{speed} shows how the iteration time evolves for 
 \section{Conclusion}
 We have derived a robustified version of expectation propagation and implemented it on an OpenCL platform. The evaluation shows an improved stability for both convex and pseudo-convex expectation propagation at the cost of a decreased accuracy. The GPU implementation is only faster than sequential expectation propagation for Ising instances larger than $45 \times 45$ nodes.
 
+There are a few natural directions for further research. First, we
+can examine problems with continuous distributions like Latent
+Dirichlet
+Allocation~\cite{lda}. Second,
+we could explore structured
+approximations. For instance,
+by decomposing the graph in
+Figure \ref{fig:ising} into
+linear chains.
+
 \bibliographystyle{latex8}
 \bibliography{refs} 
 
