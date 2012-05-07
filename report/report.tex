@@ -13,19 +13,20 @@
 \usepackage{algorithmic}
 \usepackage{algorithm}
 \usepackage{amsfonts}
-\usepackage{subfigure}
+%\usepackage{subfigure}
 \usepackage{amssymb}
 \usepackage[small]{caption}
  \usepackage{graphicx}
 \usepackage{amsmath}
-\usepackage{multirow}
-\usepackage{comment}
+%\usepackage{multirow}
+%\usepackage{comment}
 \usepackage{enumerate}
 \usepackage{latexsym}
 \usepackage{tipa}
 
 \usepackage{times}
 \newcommand{\bs}[0]{\textrm{\textbackslash}}
+\newcommand{\clique}[1]{\vec #1_{\{k\}}}
 
 %\documentstyle[times,art10,twocolumn,latex8]{article}
 
@@ -54,38 +55,230 @@ As statistical machine learning becomes more and more prevalent and models becom
 
 \section{Introduction}
 
-\ldots
-EP updates are typically defined sequentially,
-and there is reason to believe this is intentional.
-While some (XXX) have employed parallel updates when using EP, they
-have done so uncritically, finding that it works. Here, we
-undertake to explore
-\ldots
+Probabilistic graphical models (PGMs) are one of the cornerstones
+of modern AI, with applications ranging from medical diagnosis, to
+social network analysis, to robotics. PGMs provide the flexibility
+to model almost any real world phenomena in a coherent, simple way.
+However, exact computation in all but the most trivial PGMs is
+impossible. In the discrete case, inference in PGMs is
+\#P-complete~\cite{Koller2009pgm}, and for continuous variables it is
+possible to come up with incomputable models, even for ``well
+behaved'' distributions~\cite{AFR11}.
+
+Therefore, approximate inference regimes are one of the main cottage
+industries within the AI community, with several variants proposed
+each year. Broadly, they fall into three categories. The first is
+based on random sampling, especially Markov Chain Monte Carlo. MCMC
+is a randomized algorithm that is perhaps the easiest to implement,
+though it almost always the slowest in practice. Second are relaxation
+techniques based on linear or convex programming, but these are
+complex to implement and require significantly different implementations
+for each new PGM considered. Finally, there are message passing
+algorithms like mean field inference, belief propagation, and
+expectation propagation.  We focus on message passing algorithms.
+
+Unfortunately, all of these algorithms are tricky to parallelize,
+especially on arbitrarily structured graphs. Most of these algorithms
+can be parallelized to a certain extent given a graph coloring, but
+there is a limit to how much parallelism can be extracted from graph
+partitions in arbitrary graphs.
+
+Message passing algorithms such as Expectation
+Propagation~\cite{Minka01} optimize an approximation to the true
+PGM that is ``as close as possible'' to the original graph while
+remaining within a tractable set of decomposed distributions.
+Operationally, these algorithms typically work by decomposing the
+graph structure into subgraphs, and then (potentially) further
+approximating those parts with simpler distributions. Then, one
+component is updated at a time, optimizing it locally using the
+other components as a guide. That is, these algorithms are basically
+a kind of coordinate ascent. This implies that these updates are
+inherently sequential: coordinate ascent only makes sense if one
+coordinate is updated at a time.
+
+However, it is possible to just perform these updates in parallel,
+using ``old information'' when making decisions~\cite{CsekeHeskes2010}.
+However, this update schedule can exacerbate the non-convergence
+problems already observed in practice. Because there are multiple
+local optima, different components of the graph might be attracted
+to different optima, leading to oscillations.
+
+We propose a new message passing algorithm called Convex Expectation
+Propagation (CEP) that allows for non-serialized concurrent updates
+without introducing the same pathologies possible in the na\"ive
+algorithm.  One class of approximations---convex approximations---ensures
+that there is only one optimum.~(XXX cite trw) Thus, different
+pieces of the structure of the graph (which are operating largely
+independently on different processors) cannot update towards different
+local optima, which is one of the primary sources of oscillation.
+
+We implemented CEP on both a CPU and a commodity GPU, via the new
+OpenCL standard. We compare our algorithm to a serialized version
+of the algorithm, as well as a non-robustified traditional version
+of EP. We consider three metrics: accuracy, speed, and convergence.
+We show that while EP performs surprisingly well in many circumstances
+even when parallelized, it does for some conditions exhibit the
+oscillations and slower convergence we hypothesized. Moreover, our
+new algorithm does not exhibit these problems, though it usually
+less accurate. We therefore consider an unprincipled compromise
+between the two algorithms, finding that it combines the benefits of
+both algorithms.
 
 This paper is organized as follows. First, we describe necessary
 background on probabilistic graphical models. Second, we describe
-different inference algorithms in general and Expectation Propagation
-in particular. Third, we motivate and present Convex Expectation
-Propagation. Finally, we conduct our experiments on synthetic
-models in a Ising spin-glass model under a variety of parameter
-conditions.
+Expectation Propagation. Third, we motivate and present Convex
+Expectation Propagation. Then, we conduct our experiments on
+synthetic models in a Ising spin-glass model under a variety of
+parameter conditions. Finally, we discuss potential future avenues
+for research.
 
 \section{Graphical Models}
 
-\begin{figure}
+Probabilistic graphical models are defined on a graph structure as
+in Figure \ref{fig:ising}.\footnote{We focus on the undirected case.
+These are sometimes called Markov Random Fields.} Each PGM defines
+a class of probability distributed that share certain independence
+assumptions.  The nodes in a graph are the underlying random variables,
+and a variable is independent of all other variables conditioned on
+observations about all of its neighbors. For instance, in Figure
+\ref{fig:ising}, $X_1$ is independent of all other variables given
+$X_2$ and XXX.
+
+A graphical model does not describe a single probability distribution.
+Instead, we need a set of \textit{potential functions} $\psi$, possibly
+one for each clique $\clique{x}$ in the underlying graph:
+\begin{equation}
+  \begin{split}
+    p(x_1, \ldots, x_n) &= \frac1Z \prod_{k} \psi_k(\clique{x}) \\
+    Z &= \sum_{x'_1, \ldots, x'_n} \prod_{k} \psi_k(\clique{x'})
+   \end{split}
+   \label{eqn:prob}
+ \end{equation}
+$Z$ is called the partition function and ensures the distribution
+normalizes to unity. Note that it involves a sum over all possible
+assignments to all variables, which can take exponential time in an
+arbitrary graph. Most of our attention will be focused on
+approximating this term.
+
+Usually, for both theory and practice, it is convenient to
+represent these distributions in the exponential family of
+distributions as follows:
+\begin{equation}
+  \begin{split}
+    p(x_1, \ldots, x_n) &= \exp\left ( \sum_{k} \langle \theta_k,
+    \phi^k(\clique{x}) \rangle - A(\theta) \right ) \\
+    A(\theta) &= \log \sum_{x'_1, \ldots, x'_n}  \exp\left (
+    \sum_{k} \langle \theta_k, \phi^k(\clique{x'}) \rangle \right )
+   \end{split}
+ \end{equation}
+Each $\phi^k(\cdot)$ is a ``feature'' or ``projection'' function
+that lifts the underlying variables in a space where the potential
+function can be computed as the exponentiation of an inner product.
+$A(\theta)$ is called the log-partition function.
+
+In this paper, we actually restrict ourselves to pairwise graphical models:
+models where the potentials are constrained to at most 2 variables.
+That is, we consider models of the form:
+\begin{equation}
+  \begin{split}
+    p(x_1, \ldots, x_n)  &= \frac1Z \prod_i \psi_i(x_i) \prod_{i,j}
+    \psi_{ij}(x_i, x_j) \\
+   \end{split}
+   \label{eqn:pairwise}
+ \end{equation}
+Arbitrary graphical models can be made pairwise via a simple
+transform, and so it is appropriate for simulation studies. In
+particular, we use the Ising Model for our experiments. Everything
+we find should generalize to higher arity models.
+
+\begin{figure}[t]
+  \centering
   [ising model here XXX]
   \caption{An Ising model, a commonly employed synthetic class of
   graphical model. XXX}
   \label{fig:ising}
 \end{figure}
 
-\section{Inference Algorithms}
+There are two \textit{inference} tasks commonly associated with
+graphical models. The first is the identification of the maximum
+probability assignment to all variables. The second is the task of
+determining the partition function $Z$ or marginal distributions
+$\mu(x_i, x_j, \ldots)$.  For general discrete distributions, this
+first task is NP-hard, while the second task is \#P-hard in the
+general case.
+
+Many papers have been written on methods for approximately solving
+both of these problems, as well as identifying subclasses of PGMs
+where one or the other task is tractable. (e.g. XXX cite M3N paper)
+In this paper, we focus on the second, harder, task, choosing to
+study in particular on Expectation Propagation\cite{Minka01}.
+
+\section{Expectation Propagation}
+
+Recall in our discussion of Equation \ref{eqn:prob} that the
+exponential number of assignments to the variables $x_1,\ldots,x_k$
+was the source of the intractability associated with inference in
+graphical models. If, however, our graph is suitably structured---say,
+a fully disconnected graph or a tree---then computing this sum would
+be possible in polynomial time via dynamic programming. Moreover,
+if a graph structure is just ``a little intractable'' then inference
+is still not so bad. For instance, a graph with a single loop can
+be decomposed into just a few trees by summing over the loop in the
+outermost layer of the sum. More generally, if we could find a way
+to efficiently approximate a full graph by a ``simple graph'' and a
+collection of ``slightly intractable'' graphs, we could perform the
+sum efficiently.
+
+Expectation Propagation\cite{Minka01} seeks to operationalize this
+intuition precisely. Define a core graph by a feature function
+$\phi^0$ that collects some subset of the original feature
+functions. For instance, in the Ising model in Figure
+\ref{fig:ising}, we might choose the potentials on the fully
+disconnected graph in Figure \ref{fig:ep}a. Then, we cluster the
+remaining potentials into ``augmented'' graphs. For instance, we
+might keep each edge in its own cluster, as in Figure
+\ref{fig:ep}b. Denote these clusters by their clustered feature
+functions $\phi^i$.
+
+EP works by taking the potentials from an augmented graph and
+combining them with an ``adjusted'' version of the core graph.
+Specifically, we maintain a distribution $q$ based on the core graph
+that approximates $p$ as closely as possible. At each step, we
+choose an augmented graph with features $\phi^k$, multiply it in
+with $q$ (after removing cluster $k$'s contribution to q), and then
+create a new $q$ that looks as much like the product as possible.
+Write the potentials associated with the augmented graph by $f_k(x)
+= \exp( \langle \theta^k, \phi^k(x) \rangle )$, and let
+$\tilde f_k(x) = \exp( \langle \lambda_k, \phi^0(x)\rangle$ be
+$f_k$'s contribution to the $q$. The algorithm is as follows:
+\begin{enumerate}
+  \item Initialize the $\tilde f_k$.
+  \item Set $q(x) \propto \prod_k \tilde f_k$.
+  \item Until convergence, choose $k$:
+  \item Create $q^{\bs k}(x) = q(x) / \tilde f_k(x)$
+  \item Create the augmented distribution:\\
+    $q_k(x) = q^{\bs
+    k}(x)\cdot f_k(x)$.
+  \item Project $\mathrm{KL}(q_k(x) || q^{\textrm{new}}(x))$
+  \item Store $\tilde f_k(x) = q^{\textrm{new}}(x)/q(x)$
+\end{enumerate}
+Step 6 simply says that one should adjust $q$ to have the same
+expectations as $q_k$ for all of the features in $\phi^0$. For
+instance, if we use a fully disconnected graph as our $q$, then we
+will update $q$ so that the marginal distributions $\mu_i(x_i)$
+will be the same in both graphs.
+
+From a practical perspective, this algorithm is much easier to
+implement than it looks. Note that all of these functions are just
+the exponentiation of dot products. Therefore, the multiplication
+of two terms just the addition of two vectors (say $\theta^0$ and
+$\lambda_k$), while division is just subtraction. 
+
+Finally, EP is defined sequentially, but one could perform the
+updates in parallel, simply computing the $\tilde f_k$ in parallel and
+reconstituting $q$ in a reduce-scatter operation. 
 
 \section{Convex Expectation Propagation}
-
-As we discussed, EP is typically defined sequentially. While it has
-been infrequently used in a parallel setting (XXX), to our knowledge
-no one has critically examined its performance when parallelized.
 
 Like almost all approximate inference algorithms, EP is known to
 have multiple local optima. (The main exceptions to our knowledge
@@ -116,7 +309,7 @@ We propose, therefore, to modify EP by ``convexifying'' its updates.
 Here, we derive the algorithm starting from the modified objective
 function. Our proof---given sufficient background---is fairly
 straightforward, and follows the derivation of standard EP given in
-XXX closely.
+\cite{wainwright08graphical} closely.
 
 \subsection{The EP Objective}
 
@@ -308,9 +501,8 @@ be true in practice.
 \section{Conclusion}
 
 
-\nocite{ex1,ex2}
 \bibliographystyle{latex8}
-\bibliography{latex8}
+\bibliography{refs} 
 
 \end{document}
 

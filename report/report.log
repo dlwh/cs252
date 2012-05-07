@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.11 (TeX Live 2010/MacPorts 2010_4) (format=pdflatex 2011.4.14)  5 MAY 2012 15:31
+This is pdfTeX, Version 3.1415926-2.3-1.40.12 (TeX Live 2011/MacPorts 2011_5) (format=pdflatex 2012.5.6)  6 MAY 2012 22:25
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -127,26 +127,6 @@ Package: amsfonts 2009/06/22 v3.00 Basic AMSFonts support
 LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
 (Font)                  U/euf/m/n --> U/euf/b/n on input line 96.
 )
-(/opt/local/share/texmf-texlive-dist/tex/latex/subfigure/subfigure.sty
-Package: subfigure 2002/03/15 v2.1.5 subfigure package
-\subfigtopskip=\skip50
-\subfigcapskip=\skip51
-\subfigcaptopadj=\dimen112
-\subfigbottomskip=\skip52
-\subfigcapmargin=\dimen113
-\subfiglabelskip=\skip53
-\c@subfigure=\count105
-\c@lofdepth=\count106
-\c@subtable=\count107
-\c@lotdepth=\count108
-
-****************************************
-* Local config file subfigure.cfg used *
-****************************************
-(/opt/local/share/texmf-texlive-dist/tex/latex/subfigure/subfigure.cfg)
-\subfig@top=\skip54
-\subfig@bottom=\skip55
-)
 (/opt/local/share/texmf-texlive-dist/tex/latex/amsfonts/amssymb.sty
 Package: amssymb 2009/06/22 v3.00
 )
@@ -155,12 +135,12 @@ Package: caption 2010/01/09 v3.1m Customizing captions (AR)
 
 (/opt/local/share/texmf-texlive-dist/tex/latex/caption/caption3.sty
 Package: caption3 2010/01/14 v3.1m caption3 kernel (AR)
-\captionmargin=\dimen114
-\captionmargin@=\dimen115
-\captionwidth=\dimen116
-\caption@indent=\dimen117
-\caption@parindent=\dimen118
-\caption@hangindent=\dimen119
+\captionmargin=\dimen112
+\captionmargin@=\dimen113
+\captionwidth=\dimen114
+\caption@indent=\dimen115
+\caption@parindent=\dimen116
+\caption@hangindent=\dimen117
 Package caption Info: Unknown document class (or package),
 (caption)             standard defaults will be used on input line 1084.
 )
@@ -175,9 +155,8 @@ ngth {\@ctmp }{-\@figindent }\addtolength {\@ctmp }{-\@figindent } \ifdim \wd \
 @tempboxa >\@ctmp \begin {list}{}{\leftmargin \@figindent \rightmargin \leftmar
 gin } \item []\tenhv #1.~#2\par \end {list} \else \hbox to\hsize {\hfil \box \@
 tempboxa \hfil } \fi .
-\c@ContinuedFloat=\count109
+\c@ContinuedFloat=\count105
 Package caption Info: float package is loaded.
-Package caption Info: subfigure package is loaded.
 ) (/opt/local/share/texmf-texlive-dist/tex/latex/graphics/graphicx.sty
 Package: graphicx 1999/02/16 v1.0f Enhanced LaTeX Graphics (DPC,SPQR)
 
@@ -193,19 +172,19 @@ File: graphics.cfg 2010/04/23 v1.9 graphics configuration of TeX Live
 Package graphics Info: Driver file: pdftex.def on input line 91.
 
 (/opt/local/share/texmf-texlive-dist/tex/latex/pdftex-def/pdftex.def
-File: pdftex.def 2010/02/14 v0.04n Graphics/color for pdfTeX
-\Gread@gobject=\count110
-))
-\Gin@req@height=\dimen120
-\Gin@req@width=\dimen121
-)
-(/opt/local/share/texmf-texlive-dist/tex/latex/multirow/multirow.sty
-\bigstrutjot=\dimen122
-)
-(/opt/local/share/texmf-texlive-dist/tex/latex/comment/comment.sty
-\CommentStream=\write3
+File: pdftex.def 2011/05/27 v0.06d Graphics/color for pdfTeX
 
-Excluding comment 'comment')
+(/opt/local/share/texmf-texlive-dist/tex/generic/oberdiek/infwarerr.sty
+Package: infwarerr 2010/04/08 v1.3 Providing info/warning/message (HO)
+)
+(/opt/local/share/texmf-texlive-dist/tex/generic/oberdiek/ltxcmds.sty
+Package: ltxcmds 2011/04/18 v1.20 LaTeX kernel commands for general use (HO)
+)
+\Gread@gobject=\count106
+))
+\Gin@req@height=\dimen118
+\Gin@req@width=\dimen119
+)
 (/opt/local/share/texmf-texlive-dist/tex/latex/tools/enumerate.sty
 Package: enumerate 1999/03/05 v3.00 enumerate extensions (DPC)
 \@enLab=\toks23
@@ -239,25 +218,25 @@ LaTeX Warning: Unused global option(s):
 (./report.aux)
 \openout1 = `report.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 37.
-LaTeX Font Info:    ... okay on input line 37.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 37.
-LaTeX Font Info:    ... okay on input line 37.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 37.
-LaTeX Font Info:    ... okay on input line 37.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 37.
-LaTeX Font Info:    ... okay on input line 37.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 37.
-LaTeX Font Info:    ... okay on input line 37.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 37.
-LaTeX Font Info:    ... okay on input line 37.
-LaTeX Font Info:    Checking defaults for T3/cmr/m/n on input line 37.
-LaTeX Font Info:    Try loading font information for T3+cmr on input line 37.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 38.
+LaTeX Font Info:    ... okay on input line 38.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 38.
+LaTeX Font Info:    ... okay on input line 38.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 38.
+LaTeX Font Info:    ... okay on input line 38.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 38.
+LaTeX Font Info:    ... okay on input line 38.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 38.
+LaTeX Font Info:    ... okay on input line 38.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 38.
+LaTeX Font Info:    ... okay on input line 38.
+LaTeX Font Info:    Checking defaults for T3/cmr/m/n on input line 38.
+LaTeX Font Info:    Try loading font information for T3+cmr on input line 38.
  (/opt/local/share/texmf-texlive-dist/tex/latex/tipa/t3cmr.fd
 File: t3cmr.fd 2001/12/31 TIPA font definitions
 )
-LaTeX Font Info:    ... okay on input line 37.
-LaTeX Font Info:    Try loading font information for OT1+ptm on input line 37.
+LaTeX Font Info:    ... okay on input line 38.
+LaTeX Font Info:    Try loading font information for OT1+ptm on input line 38.
 
 (/opt/local/share/texmf-texlive-dist/tex/latex/psnfss/ot1ptm.fd
 File: ot1ptm.fd 2001/06/04 font definitions for OT1/ptm.
@@ -267,48 +246,50 @@ Package caption Info: End \AtBeginDocument code.
 
 (/opt/local/share/texmf-texlive-dist/tex/context/base/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count111
-\scratchdimen=\dimen123
+\scratchcounter=\count107
+\scratchdimen=\dimen120
 \scratchbox=\box30
-\nofMPsegments=\count112
-\nofMParguments=\count113
+\nofMPsegments=\count108
+\nofMParguments=\count109
 \everyMPshowfont=\toks24
-\MPscratchCnt=\count114
-\MPscratchDim=\dimen124
-\MPnumerator=\count115
+\MPscratchCnt=\count110
+\MPscratchDim=\dimen121
+\MPnumerator=\count111
+\makeMPintoPDFobject=\count112
 \everyMPtoPDFconversion=\toks25
 ) (/opt/local/share/texmf-texlive-dist/tex/generic/oberdiek/pdftexcmds.sty
-Package: pdftexcmds 2010/04/01 v0.9 Utility functions of pdfTeX for LuaTeX (HO)
+Package: pdftexcmds 2011/04/22 v0.16 Utilities of pdfTeX for LuaTeX (HO)
 
-
-(/opt/local/share/texmf-texlive-dist/tex/generic/oberdiek/infwarerr.sty
-Package: infwarerr 2010/04/08 v1.3 Providing info/warning/message (HO)
-)
 (/opt/local/share/texmf-texlive-dist/tex/generic/oberdiek/ifluatex.sty
 Package: ifluatex 2010/03/01 v1.3 Provides the ifluatex switch (HO)
 Package ifluatex Info: LuaTeX not detected.
 )
-(/opt/local/share/texmf-texlive-dist/tex/generic/oberdiek/ltxcmds.sty
-Package: ltxcmds 2010/04/26 v1.7 LaTeX kernel commands for general use (HO)
+(/opt/local/share/texmf-texlive-dist/tex/generic/oberdiek/ifpdf.sty
+Package: ifpdf 2011/01/30 v2.3 Provides the ifpdf switch (HO)
+Package ifpdf Info: pdfTeX in PDF mode is detected.
 )
 Package pdftexcmds Info: LuaTeX not detected.
 Package pdftexcmds Info: \pdf@primitive is available.
 Package pdftexcmds Info: \pdf@ifprimitive is available.
+Package pdftexcmds Info: \pdfdraftmode found.
 )
 (/opt/local/share/texmf-texlive-dist/tex/latex/oberdiek/epstopdf-base.sty
 Package: epstopdf-base 2010/02/09 v2.5 Base part for package epstopdf
 
 (/opt/local/share/texmf-texlive-dist/tex/latex/oberdiek/grfext.sty
-Package: grfext 2007/09/30 v1.0 Managing graphics extensions (HO)
-)
+Package: grfext 2010/08/19 v1.1 Managing graphics extensions (HO)
+
+(/opt/local/share/texmf-texlive-dist/tex/generic/oberdiek/kvdefinekeys.sty
+Package: kvdefinekeys 2011/04/07 v1.3 Defining keys (HO)
+))
 (/opt/local/share/texmf-texlive-dist/tex/latex/oberdiek/kvoptions.sty
-Package: kvoptions 2010/02/22 v3.7 Keyval support for LaTeX options (HO)
+Package: kvoptions 2010/12/23 v3.10 Keyval support for LaTeX options (HO)
 
 (/opt/local/share/texmf-texlive-dist/tex/generic/oberdiek/kvsetkeys.sty
-Package: kvsetkeys 2010/03/01 v1.9 Key value parser (HO)
+Package: kvsetkeys 2011/04/07 v1.13 Key value parser (HO)
 
 (/opt/local/share/texmf-texlive-dist/tex/generic/oberdiek/etexcmds.sty
-Package: etexcmds 2010/01/28 v1.3 Prefix for e-TeX command names (HO)
+Package: etexcmds 2011/02/16 v1.5 Prefix for e-TeX command names (HO)
 Package etexcmds Info: Could not find \expanded.
 (etexcmds)             That can mean that you are not using pdfTeX 1.50 or
 (etexcmds)             that some package has redefined \expanded.
@@ -317,100 +298,107 @@ Package etexcmds Info: Could not find \expanded.
 Package grfext Info: Graphics extension search list:
 (grfext)             [.png,.pdf,.jpg,.mps,.jpeg,.jbig2,.jb2,.PNG,.PDF,.JPG,.JPE
 G,.JBIG2,.JB2,.eps]
-(grfext)             \AppendGraphicsExtensions on input line 436.
+(grfext)             \AppendGraphicsExtensions on input line 452.
 
 (/opt/local/share/texmf-texlive-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <14.4> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 46.
-LaTeX Font Info:    Try loading font information for U+msa on input line 46.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 47.
+LaTeX Font Info:    Try loading font information for U+msa on input line 47.
 
 (/opt/local/share/texmf-texlive-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2009/06/22 v3.00 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 46.
+LaTeX Font Info:    Try loading font information for U+msb on input line 47.
 
 (/opt/local/share/texmf-texlive-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2009/06/22 v3.00 AMS symbols B
 )
-LaTeX Font Info:    Try loading font information for U+lasy on input line 46.
+LaTeX Font Info:    Try loading font information for U+lasy on input line 47.
 
 (/opt/local/share/texmf-texlive-dist/tex/latex/base/ulasy.fd
 File: ulasy.fd 1998/08/17 v2.2e LaTeX symbol font definitions
 )
-LaTeX Font Info:    Try loading font information for OT1+pcr on input line 46.
+LaTeX Font Info:    Try loading font information for OT1+pcr on input line 47.
 
 (/opt/local/share/texmf-texlive-dist/tex/latex/psnfss/ot1pcr.fd
 File: ot1pcr.fd 2001/06/04 font definitions for OT1/pcr.
 )
-LaTeX Font Info:    Try loading font information for OMS+pcr on input line 46.
+LaTeX Font Info:    Try loading font information for OMS+pcr on input line 47.
 
 (/opt/local/share/texmf-texlive-dist/tex/latex/psnfss/omspcr.fd
 File: omspcr.fd 
 )
 LaTeX Font Info:    Font shape `OMS/pcr/m/n' in size <12> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 46.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 47.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <12> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 49.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 50.
  [1{/opt/local/var/db/texmf/fonts/map/pdftex/updmap/pdftex.map}
 
 
 ]
-Overfull \hbox (10.58244pt too wide) in paragraph at lines 176--176
-[] 
- []
-
-
-Overfull \hbox (23.87108pt too wide) in paragraph at lines 201--201
-[] 
- []
-
-
-Overfull \hbox (10.62547pt too wide) in paragraph at lines 214--214
-[] 
- []
-
-
-Overfull \hbox (3.78313pt too wide) in paragraph at lines 241--241
-[] 
+Underfull \hbox (badness 1052) in paragraph at lines 127--134
+\OT1/ptm/m/n/10 Sec-ond, we de-scribe Ex-pec-ta-tion Prop-a-ga-tion. Third,
  []
 
 [2]
-LaTeX Font Info:    Try loading font information for OMS+ptm on input line 293.
+LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <10> not available
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 237.
 
- (/opt/local/share/texmf-texlive-dist/tex/latex/psnfss/omsptm.fd
+
+LaTeX Warning: Reference `fig:ep' on page 3 undefined on input line 237.
+
+
+LaTeX Warning: Reference `fig:ep' on page 3 undefined on input line 240.
+
+LaTeX Font Info:    Try loading font information for OMS+ptm on input line 258.
+
+(/opt/local/share/texmf-texlive-dist/tex/latex/psnfss/omsptm.fd
 File: omsptm.fd 
 )
 LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <10> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 293.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 258.
 
 
-LaTeX Warning: Citation `ex1' undefined on input line 307.
+LaTeX Warning: Citation `wainwright08graphical' on page 3 undefined on input li
+ne 312.
+
+[3]
+Overfull \hbox (10.58244pt too wide) in paragraph at lines 369--369
+[] 
+ []
 
 
-LaTeX Warning: Citation `ex2' undefined on input line 307.
+Overfull \hbox (23.87108pt too wide) in paragraph at lines 394--394
+[] 
+ []
 
-No file report.bbl.
-[3] (./report.aux)
+
+Overfull \hbox (10.62547pt too wide) in paragraph at lines 407--407
+[] 
+ []
+
+
+Overfull \hbox (3.78313pt too wide) in paragraph at lines 434--434
+[] 
+ []
+
+[4] (./report.bbl) [5] (./report.aux)
 
 LaTeX Warning: There were undefined references.
 
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
  ) 
 Here is how much of TeX's memory you used:
- 4791 strings out of 494770
- 66498 string characters out of 3171403
- 121367 words of memory out of 3000000
- 7895 multiletter control sequences out of 15000+200000
- 28751 words of font info for 74 fonts, out of 3000000 for 9000
+ 4762 strings out of 494770
+ 66108 string characters out of 3171574
+ 124509 words of memory out of 3000000
+ 7870 multiletter control sequences out of 15000+200000
+ 32061 words of font info for 78 fonts, out of 3000000 for 9000
  134 hyphenation exceptions out of 8191
  37i,19n,38p,884b,324s stack positions out of 5000i,500n,10000p,200000b,50000s
 {/opt/local/share/texmf-texlive-dist/fonts/enc/dvips/base/8r.enc}</opt/local/
@@ -423,16 +411,17 @@ are/texmf-texlive-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></opt/local/sha
 re/texmf-texlive-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></opt/local/share
 /texmf-texlive-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></opt/local/share/t
 exmf-texlive-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></opt/local/share/t
-exmf-texlive-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></opt/local/share/te
-xmf-texlive-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></opt/local/share/tex
-mf-texlive-dist/fonts/type1/urw/courier/ucrr8a.pfb></opt/local/share/texmf-texl
-ive-dist/fonts/type1/urw/times/utmb8a.pfb></opt/local/share/texmf-texlive-dist/
-fonts/type1/urw/times/utmr8a.pfb></opt/local/share/texmf-texlive-dist/fonts/typ
-e1/urw/times/utmri8a.pfb>
-Output written on report.pdf (3 pages, 164143 bytes).
+exmf-texlive-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></opt/local/share/te
+xmf-texlive-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></opt/local/share/tex
+mf-texlive-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></opt/local/share/texm
+f-texlive-dist/fonts/type1/urw/courier/ucrr8a.pfb></opt/local/share/texmf-texli
+ve-dist/fonts/type1/urw/times/utmb8a.pfb></opt/local/share/texmf-texlive-dist/f
+onts/type1/urw/times/utmr8a.pfb></opt/local/share/texmf-texlive-dist/fonts/type
+1/urw/times/utmri8a.pfb>
+Output written on report.pdf (5 pages, 189727 bytes).
 PDF statistics:
- 75 PDF objects out of 1000 (max. 8388607)
- 54 compressed objects within 1 object stream
+ 85 PDF objects out of 1000 (max. 8388607)
+ 61 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 
