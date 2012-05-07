@@ -519,13 +519,25 @@ in a fixed loop. As we shall show in our experiments, this seems to
 be true in practice.
 
 \section{Evaluation}
-\subsection{Implementation}
-OpenCL. Underflow issues. log domain computations. slow.
+We now turn to a practical evaluation of the derived robustified EP. We chose to evaluate the robustified EP on Ising model instances because of the model universality, ease of parametrization and relatively straightforward implementation for the GPU. We start by a short introduction to the Ising model and give an operational definition of the inference task we are solving. After rapidly going through the actual implementation, we present a complete set of measurements which describe the algorithm performance with respect to convergence, accuracy and speed.
 
-
-We benchmark on two dimensional binary Ising instances.
 \subsection{Ising model}
-The ising model. Typology
+The two dimensional Ising model is defined by the quartet $(n, m, (\theta_i)_i, (\theta_{i,j})_{i,j})$ where $n, m \in \mathbb{N}$ represent the number of rows and columns of the model grid, $\theta_. \in \mathbb{R}^{nm}$ define the singleton potentials and $\theta_{.,.} \in \mathbb{R}^{2nm-n-m}$ the pair potentials. For 0/1 valued variables, the corresponding joint probability writes:
+\[
+	p(x_1,\dots,x_{nm}) \propto \prod_i e^{\theta_i x_i} \prod_{i,j} e^{\theta_{i,j} (x_i x_j + (1-x_i)(1-x_j))}
+\]
+which we usually express in the log domain:
+\[
+	\log p \propto \sum_i \theta_i x_i + \sum_{i,j} \theta_{i,j} (x_i x_j + (1-x_i)(1-x_j))
+\]
+
+There are mainly two inference tasks one is interested in. The obvious one is determining the mode of $\log p$, e.g. the configuration of $x$ variables which maximize the probability. A second one is computing the $nm$ marginals $p(x_i)$. This is precisely what EP as previously defined achieves. In particular, the goal is to approximate $p$ by a simpler distribution $\tilde p$ where each variable is decoupled. 
+\[
+	\log \tilde p \propto \sum_i \tilde \theta_i x_i
+\]
+It is clear that computing the $\tilde \theta$ parameters directly yields the marginals we want, by namely $p(x_i) \approx \frac{1}{1+e^{-\tilde \theta_i}}$. Thus, to evaluate our algorithm, we compute the $\tilde \theta$ parameters exactly by explicit marginalization when possible (in practice, the problem becomes intractable for sizes larger than $5 \times 6$ with our naive exact implementation), and approximately using our algorithm.
+
+Ising models exhibit a rich behavior which depends on how the different parameters are chosen. Table \ref{typo} defines the typology of Ising models we use in the evaluation.
 
 \begin{table}[!h]\centering
 	\subtable{
@@ -540,60 +552,77 @@ The ising model. Typology
 	\begin{tabular}{c|c}
 		Name & $\theta_{i,j}$ \\
 		\hline
-		stronglyRepulsive & $ \unif[-3; 0]$ \\
+		strongly repulsive & $ \unif[-3; 0]$ \\
 		repulsive & $\unif[-1;0]$\\
 		mixed & $ \unif[-1;1]$\\
-		stronglyMixed & $ \unif[-3;3]$\\
+		strongly mixed & $ \unif[-3;3]$\\
 		attractive & $ \unif[0;1]$\\
-		stronglyAttractive & $ \unif[0;3]$\\
+		strongly attractive & $ \unif[0;3]$\\
 	\end{tabular}}
-	\caption{Singleton and pair potential typology.}
+	\caption{Singleton and pair potential typology. $\unif$ is the uniform distribution.}
 	\label{typo}
 \end{table}
 
-As for any optimization algorithm, we are interested in three characteristics. Convergence. Accuracy. Speed.
-We start by determining challenging types of Ising models both in terms of convergence and accuracy for our algorithm. We then take a closer look at these type of instances.
-We evaluate accuracy for small instances where we can solve the model exactly (sizes of $5 \times 6$, or $2^{30}$ distinct configurations at most). 
+\subsection{Implementation}
+We have implemented an exact marginalization code, a vanilla sequential EP and an OpenCL parallel version of EP. As the difference between the naive parallelization of EP and the convexified parallelization of EP is only a parameter (the power exponent $\rho$), there is no separate implementation for the robustified EP. In what follows, we call \emph{convex EP} a parallel EP with $\rho=2$, and \emph{pseudo-convex EP} a parallel EP with $\rho=1.5$. For all of the implementations, we ran into underflow issues which were successfully solved by performing all the computations in the log domain, namely, we only work with log values. This is not a problem where the original algorithm contains multiplication and exponentiation, but requires an log-exp operation and a conditional\footnote{$\log(e^a+e^b)=a+\log(1+\exp(b-a))$ if $a>b$; $\log(e^a+e^b)=b+\log(1+\exp(a-b))$ else} whenever we add two log values. This significantly reduces performance.
+
+Following OpenCL terminology, the heart of the parallel implementation is a kernel function (75 lines of C code) which is executed by the workers of the OpenCL target device. The parallelization is such that each worker is identified to an edge of the model. Two in device-memory tables contain the computed messages (one for the messages of the previous iteration, one for the current messages being computed) and the corresponding input pointers are swapped between each iteration. In sum, each worker updates its portion of the messages table, and a corresponding one full sequential iteration of EP is achieved when all the workers on the edges finished their updates. The only conditionals the kernel contains are these introduced by the previously mentioned log add operation.
+
+In effect, the OpenCL implementation is quite concise if one ignores the overhead of the setup code (specifying the device, creating the command queues, compiling the kernel for the device, adjusting parameters, moving data around, \dots).
+
+As for any optimization algorithm, we are interested in evaluating three characteristics: convergence, defined as the number of iterations before the output changes by less than a given threshold; accuracy defined as the error between the approximate and the exact solution once convergence occurs; and last but not least speed.
 
 \subsection{$4 \times 4$ models}
-\begin{figure*}\centering
+We start by determining challenging types of Ising models both in terms of convergence and accuracy for our algorithm. We use $4 \times 4$ Ising instances for a complete exploration of the space. Figure \ref{44conv} presents how convergence (if any) occurs on the $4 \times 6 = 24$ different types of Ising instances. Figure \ref{44acc} presents the corresponding results in terms of accuracy.
+
+\begin{figure*}[h!]\centering
 	\subfigure[Sequential EP]{\includegraphics[width=9cm]{plots/convergence/iterations_before_convergence_4x4_e-4_sequential.png}}\subfigure[Naive parallel EP]{\includegraphics[width=9cm]{plots/convergence/iterations_before_convergence_4x4_e-4_parallelGPU.png}}
 	\subfigure[Convexified EP]{\includegraphics[width=9cm]{plots/convergence/iterations_before_convergence_4x4_e-4_parallelGPUConvex.png}}\subfigure[Pseudo-Convexified EP]{\includegraphics[width=9cm]{plots/convergence/iterations_before_convergence_4x4_e-4_parallelGPUPseudoConvex.png}}
-	\caption{Number of iterations before computed marginals change less than $10^{-4}$ in relative $L_1$ norm. Results are averaged over 100 $4 \times 4$ Ising instances per Ising type. Error bars are shown at 1 sigma. Notice that both the sequential and the naive parallel version of EP do not converge on some instances of positive strongly attractive models, but that the convex and pseudo-convex algorithms always converge.}
+	\caption{Number of iterations before computed marginals change less than $10^{-4}$ in relative $L_1$ norm. Results are averaged over 100 $4 \times 4$ Ising instances per Ising type. Error bars are shown at 1 sigma.}
+	\label{44conv}
 \end{figure*}
 
-\newpage
+On $4 \times 4$ instances, instability rarely occurs. In effect, only positive strongly attractive instances result in an exploding number of iterations. As expected, the vanilla parallel EP usually results in longer convergence times. The convex EP does significantly reduce the convergence time in the strongly repulsive case and does converge in the positive strongly attractive case, but introduces more iterations on strongly mixed cases. The pseudo-convex EP has a beneficial effect on these but tends to increase instability for the positive strongly attractive case.
 
-\begin{figure*}\centering
+\begin{figure*}[h!]\centering
 	\subfigure[Sequential EP]{\includegraphics[width=9cm]{plots/accuracy/Relative_error_4x4_e-4_sequential.png}}\subfigure[Naive parallel EP]{\includegraphics[width=9cm]{plots/accuracy/Relative_error_4x4_e-4_parallelGPU.png}}
 	\subfigure[Convexified EP]{\includegraphics[width=9cm]{plots/accuracy/Relative_error_4x4_e-4_parallelGPUConvex.png}}\subfigure[Pseudo-Convexified EP]{\includegraphics[width=9cm]{plots/accuracy/Relative_error_4x4_e-4_parallelGPUPseudoConvex.png}}
-	\caption{Relative $L_1$ error after $10^{-4}$ convergence. Results are averaged over 100 $4 \times 4$ Ising instances per Ising type. Error bars are shown at 1 sigma. For this size of models, there is no significant difference in accuracy between sequential EP and naive parallel EP. Convex EP and pseudo-convex EP both show significant accuracy degradation with respect to EP.}
+	\caption{Relative $L_1$ error after $10^{-4}$ convergence. Results are averaged over 100 $4 \times 4$ Ising instances per Ising type. Error bars are shown at 1 sigma.}
+	\label{44acc}
 \end{figure*}
 
-\newpage
-\subsection{Increasing model size}
-Interesting instances with respect to convergence are the negative strongly mixed, positive strongly repulsive and strongly attractive. We will only focus on these family instances.
+The price we pay for the improved convergence is depicted in figure \ref{44acc}. Both strongly repulsive and strongly mixed instances are generally hard for the algorithms. However, there is an order of magnitude more error for the convex EP when compared to the vanilla EP. Interestingly, there appears to be no significant accuracy difference between the sequential EP and the naive parallel EP. Finally, we can observe that pseudo-convex EP has a significantly better accuracy than convex EP.
 
-\newpage
-\begin{figure*}\centering
+Based on this exploration of the convergence-accuracy space, we want to focus on three interesting Ising instances: negative strongly mixed, positive strongly repulsive and positive strongly repulsive.
+
+\subsection{Increasing model size}
+\begin{figure*}[ht!]\centering
 	\subfigure[Convergence]{\includegraphics[width=8cm]{plots/sizes/iterations_before_convergence_e-4.png}}
 	\subfigure[Accuracy]{\includegraphics[width=8cm]{plots/sizes/relative_error_e-4.png}}
 	\caption{Convergence and accuracy measures over $4 \times 4$, $4 \times 5$ and $5 \times 5$ models. Each group of 3 bars within a given instance size respectively represent negative strongly mixed, positive strongly repulsive and positive strongly attractive instances. The convexified and pseudo-convexified EP versions do improve convergence at a significant cost in terms of accuracy with respect to the naive parallel EP.}
+	\label{444555}
 \end{figure*}
 
-\begin{figure}\centering
+Using these three families of instances, we explore how convergence and accuracy is affected by the model size. Figure \ref{444555} shows the convergence and accuracy data for these three types across 3 increasing model sizes. For negative strongly mixed and positive strongly repulsive, there is no significant difference in the number of iterations before convergence. On the contrary, increasing size tends to overall lead to more instability with size on positive strongly attractive cases. On the accuracy side, there is a global degradation for all the algorithms on all instances, with the noticeable exception of the positive strongly attractive case which always leads to a very accurate solution, and the positive strongly repulsive case which turns out to be significantly more difficult on 25 nodes for the vanilla EP.
+
+Figure \ref{asympt} shows how the convergence evolves with larger instance sizes of positive strongly attractive instances. As expected, convex EP is the most stable algorithm, followed by pseudo-convex EP. In comparison, vanilla parallel EP is strongly divergent.
+
+\begin{figure}[h!]\centering
 	\includegraphics[width=8cm]{plots/sizes/Iterations_before_convergence_e-4_positive_stronglyAttractive.png}
 	\caption{Eventually, both convex and pseudo-convex EP diverge on large positive strongly attractive instances. The maximum number of iterations was set to 1000 in this measurement.}
+	\label{asympt}
 \end{figure}
 
-\begin{figure}\centering
+Last but not least, figure \ref{speed} shows how the iteration time evolves for plain sequential EP, CPU-parallelized EP and GPU-parallelized EP. The CPU parallelization becomes competitive with the sequential EP around 200 nodes instances ($15 \times 15$ Ising instances), while the larger overhead of the GPU parallelization makes it a quite effective competitor around 2000 nodes ($45 \times 45$ nodes). The bi-modal behavior of the GPU implementation for large instances is most probably due to the limited amount of on-chip memory available (256Mb). As for the smaller instances, we suspect some interference between the OS and the GPU, such as GUI rendering.
+
+\begin{figure}[h!]\centering
 	\includegraphics[width=8cm]{plots/sizes/time_per_iteration.png}
-	\caption{Log-log plot of the wall time per iteration of sequential EP and parallel EPs (naive, convex and pseudo-convex) ran on a 4 cores Intel i7 CPU and a low end laptop GPU (AMD Radeon HD 6490M). Asymptotic slopes are unitary as the algorithm is linear in the number of nodes. The bi-modal behavior of the GPU implementation for large instances is most probably due to the limited amount of on-chip memory available (256Mb). As for the smaller instances, we suspect some interference between the OS and the GPU, such as GUI rendering.}
+	\caption{Log-log plot of the wall time per iteration of sequential EP and parallel EPs (naive, convex and pseudo-convex) ran on a 4 cores Intel i7 CPU and a low end laptop GPU (AMD Radeon HD 6490M). Asymptotic slopes are unitary as the algorithm is linear in the number of nodes.}
+	\label{speed}
 \end{figure}
-
 
 \section{Conclusion}
-
+We have derived a robustified version of expectation propagation and implemented it on an OpenCL platform. The evaluation shows an improved stability for both convex and pseudo-convex expectation propagation at the cost of a decreased accuracy. The GPU implementation is only faster than sequential expectation propagation for Ising instances larger than $45 \times 45$ nodes.
 
 \bibliographystyle{latex8}
 \bibliography{refs} 
