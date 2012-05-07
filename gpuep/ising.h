@@ -30,6 +30,10 @@ extern void ising_print_pair(ising_t ising);
 /// Inference routines
 extern int do_inference(ising_t* result, ising_t model, cl_context context, cl_device_id device_id, float power, int numIter);
 extern int sequential_inference(ising_t* result, ising_t model, float power, int numIter);
+int do_inference_one_iteration(cl_kernel kernelInf, cl_kernel kernelMarg, cl_mem pair, cl_mem single, cl_mem single_out, cl_mem message1, cl_mem message2, 
+								cl_command_queue commands, size_t* global, size_t local, ising_t* result, ising_t model, float power);
+int do_inference_measure(cl_kernel kernelInf, cl_kernel kernelMarg, cl_command_queue commands, cl_context context, cl_device_id device_id, ising_t* result, ising_t model, float power, int numIter, char* nature_single, char* nature_pair, char* alg, int batch);
+int sequential_inference_measure(ising_t* result, ising_t model, float numEdges, int numIter, char* nature_single, char* nature_pair, char* alg, int batch);
 
 static inline float get_ising_singleton(ising_t* ising, int row, int col) {
     return ising->singleton[row * ising->cols + col];
