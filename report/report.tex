@@ -511,7 +511,7 @@ special instance of Power EP\cite{minka2004}.  Identifying $\tilde f_i(x) =
 \end{enumerate}
 
 Note that this algorithm has a kind of hysteresis: powers of the
-$f_i$ are subtracted out rather than all of them. This is an
+$f_i$ are subtracted out rather than the entire $f_i$. This is an
 interesting effect that helps explain why this algorithm is
 expected to perform better in parallel: by keeping some ``old''
 information, the convex algorithm is less likely to get stuck
@@ -547,12 +547,18 @@ The two dimensional Ising model is defined by the quartet $(n, m, (\theta_i)_i, 
 \]
 which we usually express in the log domain:
 \[
-	\log p \propto \sum_i \theta_i x_i + \sum_{i,j} \theta_{i,j} (x_i x_j + (1-x_i)(1-x_j))
+	p \propto \sum_i \theta_i x_i + \sum_{i,j} \theta_{i,j} (x_i x_j
+  + (1-x_i)(1-x_j)) + \mathrm{const}
 \]
 
-There are mainly two inference tasks one is interested in. The obvious one is determining the mode of $\log p$, e.g. the configuration of $x$ variables which maximize the probability. A second one is computing the $nm$ marginals $p(x_i)$. This is precisely what EP as previously defined achieves. In particular, the goal is to approximate $p$ by a simpler distribution $\tilde p$ where each variable is decoupled. 
+There are mainly two inference tasks one is interested in. The
+obvious one is determining the mode of $\log p$, e.g. the
+configuration of $x$ variables which maximize the probability. A
+second one is computing the $nm$ marginals $p(x_i)$. This is
+precisely what EP as previously defined achieves. In particular,
+the goal is to approximate $p$ by a simpler distribution $q$ where each variable is decoupled. 
 \[
-	\log \tilde p \propto \sum_i \tilde \theta_i x_i
+\log q = \sum_i \tilde \theta_i x_i + \mathrm{const}
 \]
 It is clear that computing the $\tilde \theta$ parameters directly yields the marginals we want, by namely $p(x_i) \approx \frac{1}{1+e^{-\tilde \theta_i}}$. Thus, to evaluate our algorithm, we compute the $\tilde \theta$ parameters exactly by explicit marginalization when possible (in practice, the problem becomes intractable for sizes larger than $5 \times 6$ with our naive exact implementation), and approximately using our algorithm.
 
@@ -585,7 +591,11 @@ Ising models exhibit a rich behavior which depends on how the different paramete
 
 
 \subsection{Implementation}
-We have implemented an exact marginalization code, a vanilla sequential EP and an OpenCL parallel version of EP. As the difference between the naive parallelization of EP and the convexified parallelization of EP is only a parameter (the power exponent $\rho$), there is no separate implementation for the robustified EP. In what follows, we call \emph{convex EP} a parallel EP with $\rho=2$, and \emph{pseudo-convex EP} a parallel EP with $\rho=1.5$. For all of the implementations, we ran into underflow issues which were successfully solved by performing all the computations in the log domain, namely, we only work with log values. This is not a problem where the original algorithm contains multiplication and exponentiation, but requires an log-exp operation and a conditional\footnote{$\log(e^a+e^b)=a+\log(1+\exp(b-a))$ if $a>b$; $\log(e^a+e^b)=b+\log(1+\exp(a-b))$ else} whenever we add two log values. This significantly reduces performance.
+We have implemented an exact marginalization code, a vanilla
+sequential EP and an OpenCL parallel version of EP. As the
+difference between the naive parallelization of EP and the
+convexified parallelization of EP is only a parameter (the power
+exponent $\frac1\rho$), there is no separate implementation for the robustified EP. In what follows, we call \emph{convex EP} a parallel EP with $\rho=2$, and \emph{pseudo-convex EP} a parallel EP with $\rho=1.5$. For all of the implementations, we ran into underflow issues which were successfully solved by performing all the computations in the log domain, namely, we only work with log values. This is not a problem where the original algorithm contains multiplication and exponentiation, but requires an log-exp operation and a conditional\footnote{$\log(e^a+e^b)=a+\log(1+\exp(b-a))$ if $a>b$; $\log(e^a+e^b)=b+\log(1+\exp(a-b))$ else} whenever we add two log values. This significantly reduces performance.
 
 Following OpenCL terminology, the heart of the parallel implementation is a kernel function (75 lines of C code) which is executed by the workers of the OpenCL target device. The parallelization is such that each worker is identified to an edge of the model. Two in device-memory tables contain the computed messages (one for the messages of the previous iteration, one for the current messages being computed) and the corresponding input pointers are swapped between each iteration. In sum, each worker updates its portion of the messages table, and a corresponding one full sequential iteration of EP is achieved when all the workers on the edges finished their updates. The only conditionals the kernel contains are these introduced by the previously mentioned log add operation.
 
