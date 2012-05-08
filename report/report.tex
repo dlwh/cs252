@@ -275,13 +275,13 @@ $\tilde f_k(x) = \exp( \langle \lambda_k, \phi^0(x)\rangle$ be
 $f_k$'s contribution to the $q$. The algorithm is as follows:
 \begin{enumerate}
   \item Initialize the $\tilde f_k$.
-  \item Set $q(x) \propto \prod_k \tilde f_k$.
+  \item Set $q(x) \propto f_0(x) \prod_k \tilde f_k$.
   \item Until convergence, choose $k$:
   \item Create $q^{\bs k}(x) = q(x) / \tilde f_k(x)$
   \item Create the augmented distribution:\\
-    $q_k(x) = q^{\bs
-    k}(x)\cdot f_k(x)$.
-  \item Project $\mathrm{KL}(q_k(x) || q^{\textrm{new}}(x))$
+    $q_k(x) = q^{\bs k}(x)\cdot f_k(x)$.
+  \item Project $\mathrm{KL}\left (q_k(x) || q^{\textrm{new}}(x)
+    \right )$
   \item Store $\tilde f_k(x) = q^{\textrm{new}}(x)/q(x)$
 \end{enumerate}
 Step 6 simply says that one should adjust $q$ to have the same
@@ -297,8 +297,11 @@ of two terms just the addition of two vectors (say $\theta^0$ and
 $\lambda_k$), while division is just subtraction. 
 
 Finally, EP is defined sequentially, but one could perform the
-updates in parallel, simply computing the $\tilde f_k$ in parallel and
-reconstituting $q$ in a reduce-scatter operation. 
+updates in parallel, simply computing the $\tilde f_k$ in parallel
+and reconstituting $q$ in a reduce-scatter operation. This has been
+tried before with good success\ref{CsekeHeskes2010}, though to our
+knowledge no one has examined the difference in performance in a
+systematic way.
 
 \section{Convex Expectation Propagation}
 
@@ -353,11 +356,11 @@ programming. We will relax both of these conditions.
 First, we split the graphical model with features $\phi$ into
 a number of components. Specifically, there are the \textit{core}
 features $\phi^0$, and then a set of \textit{augmented}
-features $\phi^i$. In the Ising model, the core features would
-be the singleton potentials, while the $\phi^i$ correspond to
+features $\phi^k$. In the Ising model, the core features would
+be the singleton potentials, while the $\phi^k$ correspond to
 non-overlapping subsets of the various edges. Clearly, taking all
 of these features together yields the original model, while taking
-just the core features and one of the $\phi^i$ yields 
+just the core features and one of the $\phi^k$ yields 
 a relaxed approximation to the full model, which we will call an
 \textit{augmented} model.
 
@@ -365,7 +368,7 @@ The key insight behind standard EP is to approximate the entropy of
 the full model as follows:
 \begin{equation}
   \begin{split}
-     H(\mu) &\approx H(\mu^0) + \sum_i \left ( H( (\mu^0,\mu^i)) -
+     H(\mu) &\approx H(\mu^0) + \sum_k \left ( H( (\mu^0,\mu^k)) -
      H(\mu^0)\right) \\
      & \stackrel{\Delta}= F(\mu^0, \ldots, \mu^n) \\
      \label{eqn:epentropy}
@@ -377,15 +380,15 @@ a set of ``corrections'' from each of the augmented models.
 
 What remains is to relax the set $\mathcal M$ to one with fewer
 constraints. This can be achieved by specifying that each of the
-marginals $(\mu^0,\mu^0)$ must live in a set $\mathcal M^i$ that
+marginals $(\mu^0,\mu^0)$ must live in a set $\mathcal M^k$ that
 specifies constraints that affect only the variables and potentials
 used in that augmented model. All together, we obtain a new
 objective:
 \begin{equation}
   \begin{split}
      A(\theta) 
-     &\approx \max_{(\mu^0,\mu^i) \in \mathcal{M}^i} \{ \langle
-     \theta^0, \mu^0 \rangle + \sum_i \langle\theta^i,\mu^i\rangle +F(\mu^0, \ldots, \mu^n) \} \\
+     &\approx \max_{(\mu^0,\mu^k) \in \mathcal{M}^k} \{ \langle
+     \theta^0, \mu^0 \rangle + \sum_k \langle\theta^k,\mu^k\rangle +F(\mu^0, \ldots, \mu^n) \} \\
    \end{split}
  \end{equation}
 By following a derivation similar to what we present in the
@@ -401,56 +404,56 @@ However, if we were to restrict ourselves to just one augmented
 model, then $F$ would be convex, because
 \begin{equation}
   \begin{split}
-     F(\mu^0,\mu^i) &= H(\mu^0) + \left( H( (\mu^0, \mu^i)) -
+     F(\mu^0,\mu^k) &= H(\mu^0) + \left( H( (\mu^0, \mu^k)) -
      H(\mu^0) \right ) \\
-     &= ( H( (\mu^0, \mu^i)) 
+     &= ( H( (\mu^0, \mu^k)) 
    \end{split}
  \end{equation}
 Moreover, if we exploit the fact that any convex combination of
 convex functions is convex, we obtain:
 \begin{equation}
   \begin{split}
-     G(\mu^0,\mu^1,\ldots,\mu^n) &= \sum_i \rho_i \left ( H(\mu^0) + \left( H( (\mu^0, \mu^i)) - H(\mu^0) \right ) \right ) \\
-     &= H(\mu^0) + \sum_i \rho_i \left( H( (\mu^0, \mu^i)) - H(\mu^0) \right )  \\
+     G(\mu^0,\mu^1,\ldots,\mu^n) &= \sum_k \rho_k \left ( H(\mu^0) + \left( H( (\mu^0, \mu^k)) - H(\mu^0) \right ) \right ) \\
+     &= H(\mu^0) + \sum_k \rho_k \left( H( (\mu^0, \mu^k)) - H(\mu^0) \right )  \\
    \end{split}
  \end{equation}
-is convex. Here $\rho_i$ parameterizes the convex combination. In
-general, we require that $\sum_i \rho_i = 1$, though for specific
+is convex. Here $\rho_k$ parameterizes the convex combination. In
+general, we require that $\sum_k \rho_k = 1$, though for specific
 cases (such as the Ising model) we can employ other choices that
 maintain convexity and might be more accurate. Hence, we have a new
 approximate objective:
 \begin{equation}
   \begin{split}
      A(\theta) 
-     &\approx \max_{(\mu^0,\mu^i) \in \mathcal{M}^i} \{
-     \langle\theta^0,\mu^0\rangle + \sum_i \langle
-     \theta^i,\mu^i\rangle  +G(\mu^0, \ldots, \mu^n) \} \\
+     &\approx \max_{(\mu^0,\mu^k) \in \mathcal{M}^k} \{
+     \langle\theta^0,\mu^0\rangle + \sum_k \langle
+     \theta^k,\mu^k\rangle  +G(\mu^0, \ldots, \mu^n) \} \\
    \end{split}
  \end{equation}
 
 What remains is to actually derive the algorithm. To do that, we
 first employ a mathematical sleight-of-hand. We define new
-marginals $\eta^i$ defined over the same space as $\mu^0$ and
+marginals $\eta^k$ defined over the same space as $\mu^0$ and
 constrain them to equal $\mu^0$. We modify $G$ as follows:
 \begin{equation*}
   \begin{split}
      G (\mu^0,(\eta^0,\mu^1),&\ldots,(\eta^n,\mu^n) )\\
-     &= H(\mu^0) + \sum_i \rho_i \left( H( (\eta^i, \mu^i)) -
-     H(\eta^i) \right )  \\ 
+     &= H(\mu^0) + \sum_k \rho_k \left( H( (\eta^k, \mu^k)) -
+     H(\eta^k) \right )  \\ 
    \end{split}
  \end{equation*}
-This trick allows us to relax the constraint that $\eta_i = \mu_i$
+This trick allows us to relax the constraint that $\eta_k = \mu_k$
 and enforce it with Lagrange multipliers.
 
 Given this modified $G$, we define the Lagrangian:
 \begin{equation}
   \begin{split}
-     L&(\mu^0,(\eta^i,\mu^i), \lambda^i) \\
-     &= \langle\theta^0,\mu^0\rangle + \sum_i \langle
-     \theta^i,\mu^i\rangle  +G(\mu^0, (\eta^1, \mu^1), \ldots,
+     L&(\mu^0,(\eta^k,\mu^k), \lambda^k) \\
+     &= \langle\theta^0,\mu^0\rangle + \sum_k \langle
+     \theta^k,\mu^k\rangle  +G(\mu^0, (\eta^1, \mu^1), \ldots,
      (\eta^n,\mu^n)) \\
-     &\phantom{\cdots}+ \sum_i \langle \lambda^i, \mu^0 -
-     \eta^i\rangle
+     &\phantom{\cdots}+ \sum_k \langle \lambda^k, \mu^0 -
+     \eta^k\rangle
      \rangle \\
    \end{split}
  \end{equation}
@@ -458,60 +461,63 @@ Taking gradients and setting them to 0 we obtain:
 \begin{equation*}
   \begin{split}
     0 &= \nabla_{\mu^0} L(\cdot) \\
-    &= \theta^0 + \nabla H(\mu^0) + \sum_i
-    \lambda_i \\
-    &= \theta^0  - \log \mu^0 + \sum_i \lambda_i + \mathrm{const} \\
-    \log \mu^0 &= \theta^0  + \sum_i \lambda_i + \mathrm{const} \\ 
-    \mu^0(x) &\propto \exp(\left \langle \theta^0  + \sum_i \lambda_i, \phi^0(x) \right\rangle)\\
+    &= \theta^0 + \nabla H(\mu^0) + \sum_k
+    \lambda_k \\
+    &= \theta^0  - \log \mu^0 + \sum_k \lambda_k + \mathrm{const} \\
+    \log \mu^0 &= \theta^0  + \sum_k \lambda_k + \mathrm{const} \\ 
+    \mu^0(x) &\propto \exp(\left \langle \theta^0  + \sum_k \lambda_k, \phi^0(x) \right\rangle)\\
     &\stackrel{\Delta}{=} q(x)
    \end{split}
  \end{equation*}
 Because $\mu^0$  is a probability distribution, $\mu^0$ is a
 distribution that has the same form as the base distribution.
 
-Taking derivatives with respect to each $(\eta^i,\mu^i)$ we have:
+Taking derivatives with respect to each $(\eta^k,\mu^k)$ we have:
 \begin{equation*}
   \begin{split}
-    0 &= \nabla_{(\eta^i,\mu^i)} L(\cdot) \\
-    &= \theta^i + \rho_i \nabla H\left((\eta^i,\mu^i)\right) - \rho_i \nabla
-    H(\eta^i) -\lambda_i \\
-    &= \theta^i  - \rho_i \log \left (\stackrel{\mu^i}{\eta^i}\right) +
-  \rho_i   \log \eta^i  - \lambda_i \\
-   \rho_i   \log \left (\stackrel{\mu^i}{\eta^i}\right)&= \theta^i  -
-    \lambda_i + \rho_i \log \eta^i
+    0 &= \nabla_{(\eta^k,\mu^k)} L(\cdot) \\
+    &= \theta^k + \rho_k \nabla H\left((\eta^k,\mu^k)\right) - \rho_k \nabla
+    H(\eta^k) -\lambda_k \\
+    &= \theta^k  - \rho_k \log \left (\stackrel{\mu^k}{\eta^k}\right) +
+  \rho_k   \log \eta^k  - \lambda_k \\
+   \rho_k   \log \left (\stackrel{\mu^k}{\eta^k}\right)&= \theta^k  -
+    \lambda_k + \rho_k \log \eta^k
    \end{split}
  \end{equation*}
-Using the fact that $\eta^i = \mu^0$ at the optimum and doing
+Using the fact that $\eta^k = \mu^0$ at the optimum and doing
 some algebra, we have:
 \begin{equation*}
   \begin{split}
-    \rho_i \log \left (\stackrel{\mu^i}{\eta^i}\right)&= \theta^i  -
-    \lambda_i + \rho_i \log \mu^0 \\
-    \rho_i \log \left (\stackrel{\mu^i}{\eta^i}\right)&= \theta^i  -
-    \lambda_i + \rho_i \cdot ( \theta^0  + \sum_\ell \lambda_\ell) \\
-    \log \left (\stackrel{\mu^i}{\eta^i}\right)&=  \frac1\rho_i
-    \theta^i  + \theta^0  + \sum_{\ell \ne i} \lambda_\ell  +
-    (1-\frac 1\rho_i)\lambda_i\\
-    q_i(x) & \propto \exp(\left \langle \theta^0  + \sum_{\ell \ne
-    i}\lambda_\ell + (1-\frac 1\rho_i)\lambda_i , \phi^0(x)
-    \right\rangle\\ &\phantom{\cdots\cdots\cdots} + \frac1\rho_i \langle \theta^i,\phi^i(x)
+    \rho_k \log \left (\stackrel{\mu^k}{\eta^k}\right)&= \theta^k  -
+    \lambda_k + \rho_k \log \mu^0 \\
+    \rho_k \log \left (\stackrel{\mu^k}{\eta^k}\right)&= \theta^k  -
+    \lambda_k + \rho_k \cdot ( \theta^0  + \sum_\ell \lambda_\ell) \\
+    \log \left (\stackrel{\mu^k}{\eta^k}\right)&=  \frac1\rho_k
+    \theta^k  + \theta^0  + \sum_{\ell \ne k} \lambda_\ell  +
+    (1-\frac 1\rho_k)\lambda_k\\
+    q_k(x) & \propto \exp(\left \langle \theta^0  + \sum_{\ell \ne
+    k}\lambda_\ell + (1-\frac 1\rho_k)\lambda_k , \phi^0(x)
+    \right\rangle\\ &\phantom{\cdots\cdots\cdots} + \frac1\rho_k \langle \theta^k,\phi^k(x)
     \rangle )\\
    \end{split}
  \end{equation*}
 
 This implies a procedure very similar to EP that is actually a
-special instance of Power EP\cite{minka2004}.  Identifying $\tilde f_i(x) =
-\exp(\langle\lambda_i,\phi^0(x)\rangle)$ and $f_i(x) =
-\exp(\langle\theta^i,\phi^i(x)\rangle)$ we can define convex EP as:
+special instance of Power EP\cite{minka2004}.  Identifying $\tilde f_k(x) =
+\exp(\langle\lambda_k,\phi^0(x)\rangle)$ and $f_k(x) =
+\exp(\langle\theta^k,\phi^k(x)\rangle)$ we can define convex EP as:
 \begin{enumerate}
-  \item Initialize $q(x) \propto f_0(x) \prod_i \tilde f_i(x)$
-  \item Create $q^{\bs i}(x) = q(x)f(x)^{1/\rho_i - 1}$
-  \item Minimize $\mathrm{KL}\left (q^{\bs i}(x)f(x)^{\frac1\rho_i} || q(x)\right)$
-  \item Update $\tilde f_i(x) = q(x)/q^{\bs i}(x)$
+  \item Initialize $q(x) \propto f_0(x) \prod_k \tilde f_k(x)$
+  \item Until convergence, choose $k$:
+  \item Create $q^{\bs k}(x) = q(x)\tilde f_k(x)^{1/\rho_k - 1}$
+  \item Create the augmented distribution:\\
+    $q_k(x) = q^{\bs k}(x)\cdot f_k(x)^{\frac1\rho_k - 1}$.
+  \item Minimize $\mathrm{KL}\left (q_k(x) || q(x)\right)$
+  \item Update $\tilde f_k(x) = q(x)/q^{\bs k}(x)$
 \end{enumerate}
 
 Note that this algorithm has a kind of hysteresis: powers of the
-$f_i$ are subtracted out rather than the entire $f_i$. This is an
+$f_k$ are subtracted out rather than the entire $f_k$. This is an
 interesting effect that helps explain why this algorithm is
 expected to perform better in parallel: by keeping some ``old''
 information, the convex algorithm is less likely to get stuck
@@ -562,9 +568,18 @@ the goal is to approximate $p$ by a simpler distribution $q$ where each variable
 \]
 It is clear that computing the $\tilde \theta$ parameters directly yields the marginals we want, by namely $p(x_i) \approx \frac{1}{1+e^{-\tilde \theta_i}}$. Thus, to evaluate our algorithm, we compute the $\tilde \theta$ parameters exactly by explicit marginalization when possible (in practice, the problem becomes intractable for sizes larger than $5 \times 6$ with our naive exact implementation), and approximately using our algorithm.
 
-Ising models exhibit a rich behavior which depends on how the different parameters are chosen. Table \ref{typo} defines the typology of Ising models we use in the evaluation.
+Ising models exhibit a rich behavior which depends on how the
+different parameters are chosen. Table \ref{typo} defines the
+typology of Ising models that we use in the evaluation.  At a high
+level, variables may be inclined to be on, or off, while pairs of
+neighboring variables may be inclined to agree or disagree. More
+positive values values encourage variables to be on, while more
+negative encourage either variables to be off or to disagree. Strong
+interactions are likely to cause problems for the fully disconnected
+approximation we use; if all interactions are weak, then the fully
+disconnected graph is not a bad approximation to the true graph.
 
-\begin{table}[!h]\centering
+\begin{table}[!ht]\centering
 	\subtable{
 	\begin{tabular}{c|c}
 		Name & $\theta_i$ \\
@@ -632,7 +647,13 @@ Based on this exploration of the convergence-accuracy space, we want to focus on
 
 Using these three families of instances, we explore how convergence and accuracy is affected by the model size. Figure \ref{444555} shows the convergence and accuracy data for these three types across 3 increasing model sizes. For negative strongly mixed and positive strongly repulsive, there is no significant difference in the number of iterations before convergence. On the contrary, increasing size tends to overall lead to more instability with size on positive strongly attractive cases. On the accuracy side, there is a global degradation for all the algorithms on all instances, with the noticeable exception of the positive strongly attractive case which always leads to a very accurate solution, and the positive strongly repulsive case which turns out to be significantly more difficult on 25 nodes for the vanilla EP.
 
-Figures \ref{asympt-nsm}, \ref{asympt-psr} and \ref{asympt-psa} show how the number of iterations before convergence evolves with larger instance sizes of our three instance families. In the positive strongly attractive case, convex EP is the most stable algorithm, followed by pseudo-convex EP. In comparison, vanilla parallel EP is rapidly divergent. The two other cases show the convergence of the number of iterations to a fixed value when the instance size increase, for any version of parallel EP. This suggests that all versions of EP get stuck in local modes for large instances.
+Figures \ref{asympt-nsm}, \ref{asympt-psr} and \ref{asympt-psa} show how
+the number of iterations before convergence evolves with larger instance
+sizes of our three instance families. In the positive strongly attractive
+case, convex EP is the most stable algorithm, followed by pseudo-convex EP.
+In comparison, vanilla parallel EP is rapidly divergent. The two other
+cases show the convergence of the number of iterations to a fixed value
+when the instance size increase, for any version of parallel EP. 
 
 \begin{figure}[h!]\centering
 	\includegraphics[width=8cm]{plots/sizes/Iterations_before_convergence_e-4_negative_stronglyMixed.png}
@@ -660,6 +681,7 @@ Last but not least, figure \ref{speed} shows how the iteration time evolves for 
 	\label{speed}
 \end{figure}
 
+
 \section{Conclusion}
 We have derived a robustified version of expectation propagation and implemented it on an OpenCL platform. The evaluation shows an improved stability for both convex and pseudo-convex expectation propagation at the cost of a decreased accuracy. The GPU implementation is only faster than sequential expectation propagation for Ising instances larger than $45 \times 45$ nodes.
 
@@ -671,7 +693,23 @@ we could explore structured
 approximations. For instance,
 by decomposing the graph in
 Figure \ref{fig:ising} into
-linear chains.
+linear chains. In particular,
+the better an approximation to
+the original graph, the less
+the additional approximation
+introduced by CEP matters.
+Finally, a variety of $\rho_i$
+are possible for any given
+decomposition. It might be
+possible to optimize the choice
+of $\rho_i$ during
+optimization, making it
+possible to fine-tune the
+approximation. The decreased
+number of iterations required
+for convergence observed in CEP
+could thus be traded off for
+improved accuracy.
 
 \bibliographystyle{latex8}
 \bibliography{refs} 
