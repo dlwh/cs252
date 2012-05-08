@@ -600,7 +600,7 @@ On $4 \times 4$ instances, instability rarely occurs. In effect, only positive s
 
 The price we pay for the improved convergence is depicted in figure \ref{44acc}. Both strongly repulsive and strongly mixed instances are generally hard for the algorithms. However, there is an order of magnitude more error for the convex EP when compared to the vanilla EP. Interestingly, there appears to be no significant accuracy difference between the sequential EP and the naive parallel EP. Finally, we can observe that pseudo-convex EP has a significantly better accuracy than convex EP.
 
-Based on this exploration of the convergence-accuracy space, we want to focus on three interesting Ising instances: negative strongly mixed, positive strongly repulsive and positive strongly repulsive.
+Based on this exploration of the convergence-accuracy space, we want to focus on three interesting Ising instances: negative strongly mixed, positive strongly repulsive and positive strongly attractive.
 
 \subsection{Increasing model size}
 \begin{figure}[ht!]\centering
@@ -612,12 +612,24 @@ Based on this exploration of the convergence-accuracy space, we want to focus on
 
 Using these three families of instances, we explore how convergence and accuracy is affected by the model size. Figure \ref{444555} shows the convergence and accuracy data for these three types across 3 increasing model sizes. For negative strongly mixed and positive strongly repulsive, there is no significant difference in the number of iterations before convergence. On the contrary, increasing size tends to overall lead to more instability with size on positive strongly attractive cases. On the accuracy side, there is a global degradation for all the algorithms on all instances, with the noticeable exception of the positive strongly attractive case which always leads to a very accurate solution, and the positive strongly repulsive case which turns out to be significantly more difficult on 25 nodes for the vanilla EP.
 
-Figure \ref{asympt} shows how the convergence evolves with larger instance sizes of positive strongly attractive instances. As expected, convex EP is the most stable algorithm, followed by pseudo-convex EP. In comparison, vanilla parallel EP is strongly divergent.
+Figures \ref{asympt-nsm}, \ref{asympt-psr} and \ref{asympt-psa} show how the number of iterations before convergence evolves with larger instance sizes of our three instance families. In the positive strongly attractive case, convex EP is the most stable algorithm, followed by pseudo-convex EP. In comparison, vanilla parallel EP is rapidly divergent. The two other cases show the convergence of the number of iterations to a fixed value when the instance size increase, for any version of parallel EP. This suggests that all versions of EP get stuck in local modes for large instances.
+
+\begin{figure}[h!]\centering
+	\includegraphics[width=8cm]{plots/sizes/Iterations_before_convergence_e-4_negative_stronglyMixed.png}
+	\caption{Number of iterations before convergence as a function of model size for negative strongly mixed instances. Plain parallel EP achieves the best numbers, followed by pseudo-convex and convex EP.}
+	\label{asympt-nsm}
+\end{figure}
+
+\begin{figure}[h!]\centering
+	\includegraphics[width=8cm]{plots/sizes/Iterations_before_convergence_e-4_positive_stronglyRepulsive.png}
+	\caption{Number of iterations before convergence as a function of model size for positive strongly repulsive instances. Convex EP achieves the lowest number of iterations, followed by pseudo-convex and vanilla EP.}
+	\label{asympt-psr}
+\end{figure}
 
 \begin{figure}[h!]\centering
 	\includegraphics[width=8cm]{plots/sizes/Iterations_before_convergence_e-4_positive_stronglyAttractive.png}
-	\caption{Eventually, both convex and pseudo-convex EP diverge on large positive strongly attractive instances. The maximum number of iterations was set to 1000 in this measurement.}
-	\label{asympt}
+	\caption{Number of iterations before convergence as a function of model size for positive strongly attractive instances. Eventually, both convex and pseudo-convex EP diverge on large positive strongly attractive instances. The maximum number of iterations was set to 1000 in this measurement.}
+	\label{asympt-psa}
 \end{figure}
 
 Last but not least, figure \ref{speed} shows how the iteration time evolves for plain sequential EP, CPU-parallelized EP and GPU-parallelized EP. The CPU parallelization becomes competitive with the sequential EP around 200 nodes instances ($15 \times 15$ Ising instances), while the larger overhead of the GPU parallelization makes it a quite effective competitor around 2000 nodes ($45 \times 45$ nodes). The bi-modal behavior of the GPU implementation for large instances is most probably due to the limited amount of on-chip memory available (256Mb). As for the smaller instances, we suspect some interference between the OS and the GPU, such as GUI rendering.
